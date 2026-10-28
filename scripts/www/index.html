@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>املاک انزلی</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+
+
+<body>
+
+    <div id="detailsPanel" class="details-panel">
+
+    <div class="panel-header">
+
+        <button
+            class="panel-close"
+            onclick="closeDetails()">
+            ×
+        </button>
+
+        <div id="detailsBody"></div>
+
+    </div>
+
+</div>
+
+
+
+
+
+<div id="agencySetup">
+    <div class="agency-card">
+
+        <!-- سربرگ -->
+        <div class="agency-header">
+            <h2>ثبت دفتر جدید</h2>
+            <button type="button" id="closeAgencySetup" aria-label="بستن">×</button>
+        </div>
+
+        <!-- اطلاعات دفتر -->
+        <div class="property-grid">
+
+            <div class="field-column">
+                <label for="agencyType">نوع دفتر</label>
+                <select id="agencyType" required>
+                    <option value="" selected disabled>انتخاب نوع دفتر</option>
+                    <option value="main">دفتر اصلی</option>
+                    <option value="branch">شعبه</option>
+                    <option value="partner">همکار</option>
+                </select>
+            </div>
+
+            <div class="field-column">
+                <label for="agencyNameInput">نام دفتر</label>
+                <input
+                    type="text"
+                    id="agencyNameInput"
+                    name="agencyName"
+                    placeholder="نام دفتر املاک"
+                    autocomplete="organization"
+                    required
+                >
+            </div>
+
+        </div>
+
+        <!-- اطلاعات مدیر -->
+        <div class="property-grid">
+
+            <div class="field-column">
+                <label for="agencyManagerInput">نام مدیر دفتر</label>
+                <input
+                    type="text"
+                    id="agencyManagerInput"
+                    name="agencyManager"
+                    placeholder="نام و نام خانوادگی مدیر"
+                    autocomplete="name"
+                    required
+                >
+            </div>
+
+            <div class="field-column">
+                <label for="agencyPhoneInput">شماره تماس</label>
+                <input
+                    type="tel"
+                    id="agencyPhoneInput"
+                    name="agencyPhone"
+                    inputmode="tel"
+                    placeholder="09xxxxxxxxx"
+                    autocomplete="tel"
+                    required
+                >
+            </div>
+
+        </div>
+
+        <!-- آدرس -->
+        <div class="title-row">
+            <div class="field-row">
+                <label for="agencyAddressInput">آدرس دفتر</label>
+                <textarea
+                    id="agencyAddressInput"
+                    name="agencyAddress"
+                    placeholder="آدرس کامل دفتر را وارد کنید"
+                    autocomplete="street-address"
+                    rows="3"
+                    required
+                ></textarea>
+            </div>
+        </div>
+
+        <!-- لوگو و موقعیت -->
+        <div class="agency-tools">
+
+            <label id="logoUploadBtn">
+                <img id="logoPreview" alt="پیش‌نمایش لوگو">
+                <span id="logoText">انتخاب لوگو</span>
+                <button
+                    type="button"
+                    id="removeLogoBtn"
+                    aria-label="حذف لوگو"
+                >✕</button>
+            </label>
+
+            <input
+                type="file"
+                id="agencyLogoInput"
+                accept="image/*"
+                hidden
+            >
+
+            <button type="button" id="selectLocationBtn">
+                انتخاب موقعیت
+            </button>
+
+        </div>
+
+        <!-- دکمه‌ها -->
+        <div class="agency-buttons">
+
+            <button
+                type="button"
+                id="saveAgencyBtn"
+                aria-label="ثبت دفتر"
+            >
+                <span aria-hidden="true">✓</span>
+                <span>ثبت</span>
+            </button>
+
+            <button
+                type="button"
+                id="cancelAgencyBtn"
+                aria-label="انصراف"
+            >
+                <span aria-hidden="true">×</span>
+                <span>انصراف</span>
+            </button>
+
+        </div>
+
+    </div>
+</div>
+
+
+
+
+    <!-- HEADER -->
+
+    <header class="topbar">
+
+        <div class="logo-section">
+
+    <button id="controlCenterBtn">
+
+    <img
+        src="icons/home.svg"
+        alt="Home">
+
+</button>
+
+    <div id="controlMenu">
+
+    <button class="menuBtn" id="officeControlBtn" data-title="دفتر اصلی">
+        <img src="icons/office.svg">
+    </button>
+
+    <button class="menuBtn" data-title="فایل ها">
+        <img src="icons/files.svg">
+    </button>
+
+    <button class="menuBtn" id="filterControlBtn" data-title="فیلتر">
+        <img src="icons/filter.svg">
+    </button>
+
+    <button class="menuBtn" data-title="مشاورین">
+        <img src="icons/group-user.svg">
+    </button>
+
+    <button class="menuBtn" data-title="تنظیمات">
+        <img src="icons/setting.svg">
+    </button>
+
+</div>
+
+<button id="addBtn">
+
+    <img src="icons/add.svg" alt="Add">
+
+</button>
+
+<div id="addMenu">
+
+    <button class="addMenuBtn" id="addFileBtn">
+        <img src="icons/addfile.svg">
+        <span>ثبت فایل جدید</span>
+    </button>
+
+    <button class="addMenuBtn" id="agencyBtn">
+        <img src="icons/agency.svg">
+        <span>ثبت دفتر جدید</span>
+    </button>
+
+</div>
+
+<div id="locationPicker" style="display: none;">
+    <img src="icons/location.svg" alt="انتخاب موقعیت">
+</div>
+
+</div>
+
+
+
+
+       <div class="filter-section">
+
+    <div class="search-box">
+
+        
+
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="جستجو ...">
+
+            <img
+            src="icons/search.svg"
+            class="search-icon">
+
+    </div>
+
+
+</div>
+
+    </header>
+
+    
+    <!-- MAIN -->
+
+    <div class="main-container">
+
+        <!-- MAP -->
+<section class="map-container">
+
+    <div id="map"></div>
+
+</section>
+
+
+        <!-- PROPERTY PANEL -->
+
+        <div id="overlay"></div>
+
+        <aside id="propertyPanel">
+
+    <div class="panel-header">
+
+         <button
+        class="close-panel-btn"
+        onclick="closePropertyPanel()">
+        ×
+    </button>
+
+    <h2>ثبت فایل جدید</h2>
+
+    <div class="steps-bar">
+
+        <div class="step-item active" id="stepIndicator1">
+            <div class="step-circle">۱</div>
+            <span>اطلاعات اولیه</span>
+        </div>
+
+        <div class="step-line"></div>
+
+        <div class="step-item" id="stepIndicator2">
+            <div class="step-circle">۲</div>
+            <span>اطلاعات جزئی</span>
+        </div>
+
+        <div class="step-line"></div>
+
+        <div class="step-item" id="stepIndicator3">
+            <div class="step-circle">۳</div>
+            <span>اطلاعات نهایی</span>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="panel-body">
+
+    <!-- STEP 1 -->
+<div id="step1">
+    <!-- سطر 1 -->
+      <div class="property-grid">
+
+        <div class="field-row">
+            <label>کد فایل:</label>
+            <input
+                type="text"
+                id="fileCode"
+                placeholder="File-001">
+        </div>
+
+        <div class="field-row">
+            <label>تاریخ:</label>
+            <input
+                type="text"
+                id="fileDate"
+                placeholder="۱۴۰۵/۰۷/۱۴">
+        </div>
+
+      </div>
+     <!-- سطر 2 -->
+       <div class="property-grid">
+    <div class="field-column">
+        <label>نوع ملک</label>
+
+        <select id="propertyType">
+            <option value="apartment">آپارتمان</option>
+            <option value="villa">ویلا</option>
+            <option value="land">زمین</option>
+            <option value="shop">مغازه</option>
+            <option value="office">اداری</option>
+        </select>
+    </div>
+
+    <div class="field-column">
+
+        <label>نوع معامله</label>
+
+        <select
+            id="dealType"
+            onchange="changeDealType()">
+
+            <option value="sell">فروش</option>
+            <option value="deposit">رهن کامل</option>
+            <option value="rent">رهن و اجاره</option>
+
+        </select>
+
+    </div>
+
+       </div>
+    <!-- سطر 3 -->
+       <div class="title-row">
+
+    <div class="field-row">
+
+        <label>عنوان:</label>
+
+        <input
+            type="text"
+            id="title"
+            placeholder="مثال: نوساز، ساحلی ...">
+
+    </div>
+
+       </div>
+    <!-- سطر 4 -->
+       <div class="property-grid-3">
+
+        <div class="field-row">
+            <label>متراژ:</label>
+            <input type="number" id="area">
+        </div>
+
+        <div class="field-row">
+            <label>سال ساخت:</label>
+            <input type="number" id="year">
+        </div>
+
+        <div class="field-row">
+            <label>خواب:</label>
+            <input type="number" id="rooms">
+        </div>
+
+       </div>
+    <!-- سطر 5 -->
+       <div class="checkbox-group">
+
+        <label>
+            <input type="checkbox" id="parking">
+            <span>پارکینگ</span>
+        </label>
+
+        <label>
+            <input type="checkbox" id="storage">
+            <span>انباری</span>
+        </label>
+
+        <label>
+            <input type="checkbox" id="elevator">
+            <span>آسانسور</span>
+        </label>
+
+        <label>
+            <input type="checkbox" id="balcony">
+            <span>بالکن</span>
+        </label>
+
+       </div>
+    <!-- سطر 6 -->
+       <div class="property-grid-4">
+
+        <div class="field-row">
+            <label>طبقات:</label>
+            <input type="number" id="totalFloors">
+        </div>
+
+        <div class="field-row">
+            <label>واحدها:</label>
+            <input type="number" id="totalUnits">
+        </div>
+
+        <div class="field-row">
+            <label>طبقه:</label>
+            <input type="number" id="floor">
+        </div>
+
+        <div class="field-row">
+            <label>واحد:</label>
+            <input type="number" id="unitNumber">
+        </div>
+
+       </div>
+</div>
+
+    <!-- STEP 2 -->
+<div id="step2" style="display:none;">
+    <!-- سطر 1 : نما -->
+<div class="row-facade">
+
+    <label class="row-title">نما:</label>
+
+    <div class="facade-options">
+
+        <label>
+            <input type="radio" name="facade" value="سنگ">
+            <span>سنگ</span>
+        </label>
+
+        <label>
+            <input type="radio" name="facade" value="سرامیک">
+            <span>سرامیک</span>
+        </label>
+
+        <label>
+            <input type="radio" name="facade" value="کامپوزیت">
+            <span>کامپوزیت</span>
+        </label>
+
+    </div>
+
+</div>
+<!-- سطر 2 : کابینت -->
+<div class="row-cabinet">
+
+    <label class="row-title">کابینت:</label>
+
+    <div class="cabinet-options">
+
+        <label>
+            <input type="radio" name="cabinet" value="MDF">
+            <span>MDF</span>
+        </label>
+
+        <label>
+            <input type="radio" name="cabinet" value="های گلاس">
+            <span>های گلاس</span>
+        </label>
+
+        <label>
+            <input type="radio" name="cabinet" value="ممبران">
+            <span>ممبران</span>
+        </label>
+
+        <label>
+            <input type="radio" name="cabinet" value="فلز">
+            <span>فلز</span>
+        </label>
+
+    </div>
+
+</div>
+<!-- سطر 3 : تجهیزات آشپزخانه -->
+<div class="row-kitchen">
+
+    <label class="row-title">آشپزخانه:</label>
+
+    <div class="kitchen-options">
+
+        <label>
+            <input type="checkbox" id="hood">
+            <span>هود</span>
+        </label>
+
+        <label>
+            <input type="checkbox" id="stove">
+            <span>گاز رومیزی</span>
+        </label>
+
+        <label>
+            <input type="checkbox" id="sink">
+            <span>سینک</span>
+        </label>
+
+    </div>
+
+</div>
+<!-- سطر 4 : سقف -->
+<div class="row-ceiling">
+
+    <label class="row-title">سقف:</label>
+
+    <div class="ceiling-options">
+
+        <label>
+            <input type="radio" name="ceiling" value="کناف">
+            <span>کناف</span>
+        </label>
+
+        <label>
+            <input type="radio" name="ceiling" value="گچ">
+            <span>گچ</span>
+        </label>
+
+        <label>
+            <input type="radio" name="ceiling" value="لمه">
+            <span>لمه</span>
+        </label>
+
+    </div>
+
+</div>
+<!-- سطر 5 : کف -->
+<div class="row-floor">
+
+    <label class="row-title">کف:</label>
+
+    <div class="floor-options">
+
+        <label>
+            <input type="radio" name="floorType" value="سرامیک">
+            <span>سرامیک</span>
+        </label>
+
+        <label>
+            <input type="radio" name="floorType" value="پارکت">
+            <span>پارکت</span>
+        </label>
+
+        <label>
+            <input type="radio" name="floorType" value="کفپوش">
+            <span>کفپوش</span>
+        </label>
+
+        <label>
+            <input type="radio" name="floorType" value="موکت">
+            <span>موکت</span>
+        </label>
+
+    </div>
+
+</div>
+<!-- سطر 6 : سرمایش -->
+<div class="row-cooling">
+
+    <label class="row-title">سرمایش:</label>
+
+    <div class="cooling-options">
+
+        <label>
+            <input type="radio" name="cooling" value="اسپیلت">
+            <span>اسپیلت</span>
+        </label>
+
+        <label>
+            <input type="radio" name="cooling" value="کولرگازی">
+            <span>کولرگازی</span>
+        </label>
+
+        <label>
+            <input type="radio" name="cooling" value="ندارد">
+            <span>ندارد</span>
+        </label>
+
+    </div>
+
+</div>
+<!-- سطر 7 : گرمایش -->
+<div class="row-heating">
+
+    <label class="row-title">گرمایش:</label>
+
+    <div class="heating-options">
+
+        <label>
+            <input type="radio" name="heating" value="پکیج">
+            <span>پکیج</span>
+        </label>
+
+        <label>
+            <input type="radio" name="heating" value="بخاری">
+            <span>بخاری</span>
+        </label>
+
+        <label>
+            <input type="radio" name="heating" value="موتورخانه">
+            <span>موتورخانه</span>
+        </label>
+
+    </div>
+
+</div>
+<!-- سطر 8 : پنجره -->
+<div class="row-window">
+
+    <label class="row-title">پنجره:</label>
+
+    <div class="window-options">
+
+        <label>
+            <input type="radio" name="window" value="دوجداره">
+            <span>دوجداره</span>
+        </label>
+
+        <label>
+            <input type="radio" name="window" value="معمولی">
+            <span>معمولی</span>
+        </label>
+
+        <label>
+            <input type="radio" name="window" value="آلومینیوم">
+            <span>آلومینیوم</span>
+        </label>
+
+    </div>
+
+</div>
+<!-- سطر 9 : سرویس -->
+<div class="row-service">
+
+    <label class="row-title">سرویس:</label>
+
+    <div class="service-options">
+
+        <label>
+            <input type="radio" name="service" value="ایرانی">
+            <span>ایرانی</span>
+        </label>
+
+        <label>
+            <input type="radio" name="service" value="فرنگی">
+            <span>فرنگی</span>
+        </label>
+
+        <label>
+            <input type="radio" name="service" value="هردو">
+            <span>هردو</span>
+        </label>
+
+    </div>
+
+</div>
+
+</div>
+
+   <!-- STEP 3 -->
+<div id="step3" style="display:none;">
+
+<div id="priceFields">
+
+    <!-- فروش -->
+    <div id="sellFields" class="price-box">
+
+        <div class="field-row">
+            <label for="sellPrice">قیمت فروش:</label>
+            <input type="text" id="sellPrice">
+        </div>
+
+        <div class="field-row">
+            <label for="pricePerMeter">قیمت هر متر:</label>
+            <input type="text" id="pricePerMeter">
+        </div>
+
+    </div>
+
+    <!-- رهن کامل -->
+    <div id="depositFields" class="price-box" style="display:none;">
+
+        <div class="field-row">
+            <label for="depositPrice">مبلغ رهن:</label>
+            <input type="text" id="depositPrice">
+        </div>
+
+    </div>
+
+    <!-- رهن و اجاره -->
+    <div id="rentFields" class="price-box" style="display:none;">
+
+        <div class="field-row">
+            <label for="rentDeposit">مبلغ رهن:</label>
+            <input type="text" id="rentDeposit">
+        </div>
+
+        <div class="field-row">
+            <label for="rentPrice">اجاره ماهانه:</label>
+            <input type="text" id="rentPrice">
+        </div>
+
+    </div>
+
+</div>
+
+    
+    
+<!-- اطلاعات مالک و مستأجر -->
+<div class="property-grid-5">
+
+    <div class="field-row">
+        <label for="owner">مالک:</label>
+        <input type="text" id="owner">
+    </div>
+
+    <div class="field-row">
+        <label for="phone">تلفن:</label>
+        <input type="text" id="phone">
+    </div>
+
+    <div class="field-row">
+        <label for="tenant">مستأجر:</label>
+        <input type="text" id="tenant">
+    </div>
+
+    <div class="field-row">
+        <label for="tenantPhone">تلفن:</label>
+        <input type="text" id="tenantPhone">
+    </div>
+
+</div>
+
+    <div class="address-box">
+    <label for="address">آدرس:</label>
+    <textarea id="address"></textarea>
+</div>
+
+    <div class="description-form-box">
+    <label for="description">توضیحات:</label>
+
+    <div class="description-input-box">
+        <textarea id="description"></textarea>
+    </div>
+</div>
+
+    
+<div class="images-box">
+
+    <label>تصاویر ملک:</label>
+
+    <input
+        type="file"
+        id="images"
+        accept="image/*"
+        hidden
+        onchange="previewImages(event)"
+    >
+
+    <div id="imagePreview">
+        <div class="upload-box" onclick="document.getElementById('images').click()">
+            <div class="upload-plus">+</div>
+        </div>
+
+        <div class="upload-box" onclick="document.getElementById('images').click()">
+            <div class="upload-plus">+</div>
+        </div>
+
+        <div class="upload-box" onclick="document.getElementById('images').click()">
+            <div class="upload-plus">+</div>
+        </div>
+
+        <div class="upload-box" onclick="document.getElementById('images').click()">
+            <div class="upload-plus">+</div>
+        </div>
+
+        <div class="upload-box" onclick="document.getElementById('images').click()" style="display:none">
+            <div class="upload-plus">+</div>
+        </div>
+
+        <div class="upload-box" onclick="document.getElementById('images').click()" style="display:none">
+            <div class="upload-plus">+</div>
+        </div>
+
+        <div class="upload-box" onclick="document.getElementById('images').click()" style="display:none">
+            <div class="upload-plus">+</div>
+        </div>
+
+        <div class="upload-box" onclick="document.getElementById('images').click()" style="display:none">
+            <div class="upload-plus">+</div>
+        </div>
+    </div>
+
+</div>
+
+
+</div>
+
+<!-- panel-body -->
+<div class="panel-footer">
+
+    <button id="nextBtn">
+        مرحله بعد
+    </button>
+
+    <button id="prevBtn">
+       مرحله قبل ←
+    </button>
+
+    <button id="closeBtn">
+     انصراف ×
+    </button>
+
+</div>
+
+</aside>
+
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <div id="propertyModal">
+
+    <div class="modal-content">
+
+        <button id="closeModal">
+            ✖
+        </button>
+
+        <h2 id="modalTitle">
+            عنوان ملک
+        </h2>
+
+        <div id="modalInfo">
+
+        </div>
+
+    </div>
+
+</div>
+
+<div id="filterPanel" class="filter-panel">
+
+    <div class="filter-header">
+
+    <h3>
+        فیلتر پیشرفته
+    </h3>
+
+    <button id="closeFilter">
+        ✕
+    </button>
+
+</div>
+
+    <div class="filter-content">
+
+    <div class="filter-group">
+
+        <h4>نوع معامله</h4>
+
+        <div class="deal-type-grid">
+
+    <label class="deal-card">
+        <input type="checkbox" id="sellFilter">
+        <span>فروش</span>
+    </label>
+
+    <label class="deal-card">
+        <input type="checkbox" id="depositFilter">
+        <span>رهن کامل</span>
+    </label>
+
+    <label class="deal-card">
+        <input type="checkbox" id="rentFilter">
+        <span>رهن و اجاره</span>
+    </label>
+
+</div>
+
+    <div class="filter-group">
+
+    <h4>نوع ملک</h4>
+
+    <div class="property-type-grid">
+
+        <label class="property-card">
+            <input type="checkbox" id="apartmentFilter">
+            <img src="icons/filter/apartmentfilter.png">
+            <span>آپارتمان</span>
+        </label>
+
+        <label class="property-card">
+            <input type="checkbox" id="villaFilter">
+            <img src="icons/filter/villafilter.png">
+            <span>ویلا</span>
+        </label>
+
+        <label class="property-card">
+            <input type="checkbox" id="landFilter">
+            <img src="icons/filter/landfilter.png">
+            <span>زمین</span>
+        </label>
+
+        <label class="property-card">
+            <input type="checkbox" id="shopFilter">
+            <img src="icons/filter/shopfilter.png">
+            <span>مغازه</span>
+        </label>
+
+        <label class="property-card">
+            <input type="checkbox" id="officeFilter">
+            <img src="icons/filter/officefilter.png">
+            <span>اداری</span>
+        </label>
+
+    </div>
+
+</div>
+
+<!-- امکانات -->
+
+<div class="filter-group">
+
+    <h4>امکانات</h4>
+
+    <div class="features-grid">
+
+        <label class="feature-card">
+            <input type="checkbox" id="parkingFilter">
+            <span>پارکینگ</span>
+        </label>
+
+        <label class="feature-card">
+            <input type="checkbox" id="elevatorFilter">
+            <span>آسانسور</span>
+        </label>
+
+        <label class="feature-card">
+            <input type="checkbox" id="storageFilter">
+            <span>انباری</span>
+        </label>
+
+        <label class="feature-card">
+            <input type="checkbox" id="balconyFilter">
+            <span>بالکن</span>
+        </label>
+
+    </div>
+
+</div>
+
+</div> <!-- filter-content -->
+
+<div class="filter-footer">
+
+    <button id="resetFilter">
+        حذف فیلترها
+    </button>
+
+</div>
+
+</div> <!-- filter-panel -->
+
+<div id="imageViewer" class="image-viewer">
+
+    <button
+        id="closeViewer"
+        onclick="closeImageViewer()">
+        ✕
+    </button>
+
+    <button
+        id="prevViewer"
+        onclick="prevImage()">
+        ❮
+    </button>
+
+    <img id="viewerImage">
+
+    <button
+        id="nextViewer"
+        onclick="nextImage()">
+        ❯
+    </button>
+
+</div> <!-- آخرین div پروژه -->
+
+
+<!-- پنل فایل‌های ذخیره‌شده -->
+<div id="filesPanel" class="files-panel">
+
+    <div class="files-panel-header">
+        <h3>فایل‌های املاک</h3>
+
+        <button id="closeFilesPanel" type="button">
+            ×
+        </button>
+    </div>
+
+    <div id="savedPropertiesList" class="saved-properties-list">
+        <!-- کارت فایل‌های ذخیره‌شده اینجا نمایش داده می‌شوند -->
+    </div>
+
+</div>
+
+
+
+
+
+
+<!-- پنل مدیریت مشاورین -->
+<div id="consultantsPanel" class="consultants-panel">
+
+    <!-- سربرگ اصلی پنل -->
+    <div class="consultants-header">
+        <div class="consultants-title">
+    <img src="icons/group-user.svg" alt="">
+    <h2>مدیریت مشاورین</h2>
+</div>
+
+        <div class="consultants-header-actions">
+
+            <!-- بازگشت از فرم افزودن یا ویرایش -->
+            <button
+                id="backToConsultants"
+                type="button"
+                aria-label="بازگشت به صفحه اصلی"
+                title="بازگشت"
+                style="display: none;"
+            >&#8592;</button>
+
+            <!-- بازگشت از فهرست مشاورین -->
+            <button
+                id="backFromConsultantsList"
+                type="button"
+                aria-label="بازگشت به صفحه اصلی"
+                title="بازگشت"
+                style="display: none;"
+            >&#8592;</button>
+
+            <!-- بستن پنل -->
+            <button
+                id="closeConsultantsPanel"
+                type="button"
+                aria-label="بستن پنل"
+                title="بستن"
+            >&times;</button>
+
+        </div>
+    </div>
+
+    <!-- صفحه اصلی مدیریت -->
+    <div id="consultantsHome" class="consultants-content">
+
+        <button
+            class="consultants-option"
+            id="addConsultantBtn"
+            type="button"
+        >
+            <img src="icons/add-user.svg" alt="">
+            <span>افزودن مشاور</span>
+        </button>
+
+        <button
+            class="consultants-option"
+            id="consultantsListBtn"
+            type="button"
+        >
+            <img src="icons/list-user.svg" alt="">
+            <span>فهرست مشاورین</span>
+        </button>
+
+    </div>
+
+    <!-- فرم افزودن و ویرایش مشاور -->
+    <div id="addConsultantForm" class="add-consultant-form">
+
+        <!-- عنوان فرم؛ دکمه بازگشت در سربرگ اصلی است -->
+        <div class="add-consultant-header">
+    <img src="icons/add-user.svg" alt="">
+    <h3>افزودن مشاور جدید</h3>
+</div>
+
+        <form id="consultantForm">
+
+            <!-- اطلاعات مشاور -->
+            <div class="consultant-form-fields">
+
+                <div class="consultant-field">
+                    <label for="consultantFirstName">نام</label>
+                    <input
+                        type="text"
+                        id="consultantFirstName"
+                        name="firstName"
+                        placeholder="نام مشاور"
+                        autocomplete="given-name"
+                        required
+                    >
+                </div>
+
+                <div class="consultant-field">
+                    <label for="consultantLastName">نام خانوادگی</label>
+                    <input
+                        type="text"
+                        id="consultantLastName"
+                        name="lastName"
+                        placeholder="نام خانوادگی مشاور"
+                        autocomplete="family-name"
+                        required
+                    >
+                </div>
+
+                <div class="consultant-field">
+                    <label for="consultantPhone">شماره موبایل</label>
+                    <input
+                        type="tel"
+                        id="consultantPhone"
+                        name="phone"
+                        inputmode="tel"
+                        placeholder="09xxxxxxxxx"
+                        autocomplete="tel"
+                        required
+                    >
+                </div>
+
+                <div class="consultant-field">
+                    <label for="consultantUsername">نام کاربری</label>
+                    <input
+                        type="text"
+                        id="consultantUsername"
+                        name="username"
+                        placeholder="نام کاربری اختصاصی"
+                        autocomplete="off"
+                        required
+                    >
+                </div>
+
+            </div>
+
+            <!-- مجوزهای دسترسی -->
+            <div class="consultant-permissions">
+
+                <h4 class="consultant-permissions-title">
+                    مجوزهای دسترسی
+                </h4>
+
+                <label class="consultant-permission-item">
+                    <input
+                        type="checkbox"
+                        id="permissionEditAllProperties"
+                        name="permissions"
+                        value="editAllProperties"
+                    >
+                    <span>ویرایش فایل</span>
+                </label>
+
+                <label class="consultant-permission-item">
+                    <input
+                        type="checkbox"
+                        id="permissionDeleteProperties"
+                        name="permissions"
+                        value="deleteProperties"
+                    >
+                    <span>حذف فایل</span>
+                </label>
+
+                <label class="consultant-permission-item">
+                    <input
+                        type="checkbox"
+                        id="permissionViewOwners"
+                        name="permissions"
+                        value="viewOwners"
+                    >
+                    <span>اطلاعات مالکین</span>
+                </label>
+
+                <label class="consultant-permission-item">
+                    <input
+                        type="checkbox"
+                        id="permissionViewCustomers"
+                        name="permissions"
+                        value="viewCustomers"
+                    >
+                    <span>لیست مشتریان</span>
+                </label>
+
+            </div>
+
+            <!-- رمز عبور اولیه -->
+<div class="consultant-password-box">
+
+    <div>
+        <strong>رمز عبور اولیه</strong>
+        <p>رمز موقت تولید کنید یا رمز دلخواه را وارد کنید.</p>
+    </div>
+
+    <!-- ورود دستی رمز -->
+    <div class="consultant-manual-password">
+        <input
+            type="password"
+            id="consultantManualPassword"
+            placeholder="رمز عبور دلخواه را وارد کنید"
+            autocomplete="new-password"
+        >
+
+        <button
+            type="button"
+            id="toggleConsultantPassword"
+        >
+            نمایش
+        </button>
+    </div>
+
+    <!-- تولید رمز موقت -->
+    <button
+        type="button"
+        id="generateConsultantPassword"
+    >
+        تولید رمز موقت
+    </button>
+
+    <!-- نمایش رمز تولیدشده -->
+    <div
+        id="consultantPasswordPreview"
+        class="consultant-password-preview"
+        hidden
+    >
+        <span id="consultantTemporaryPassword"></span>
+
+        <button
+            type="button"
+            id="copyConsultantPassword"
+        >
+            کپی رمز
+        </button>
+    </div>
+
+</div>
+
+            <!-- دکمه‌های فرم -->
+            <div class="consultant-form-actions">
+
+                <button
+                    type="button"
+                    id="cancelConsultantForm"
+                >
+                    <span>&times;</span>
+                    <span>انصراف</span>
+                </button>
+
+                <button
+                    type="submit"
+                    id="saveConsultantBtn"
+                >
+                    <span>&#10003;</span>
+                    <span>ثبت مشاور</span>
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- فهرست مشاورین -->
+    <div
+        id="consultantsListView"
+        class="consultants-list-view"
+        style="display: none;"
+    >
+
+        <div class="add-consultant-header">
+    <img src="icons/list-user.svg" alt="">
+    <h3>فهرست مشاورین</h3>
+</div>
+
+        <div id="consultantsListContainer">
+            <!-- کارت‌های مشاورین توسط JavaScript ساخته می‌شوند -->
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
