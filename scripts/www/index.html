@@ -207,8 +207,8 @@
         <img src="icons/group-user.svg">
     </button>
 
-    <button class="menuBtn" data-title="تنظیمات">
-        <img src="icons/setting.svg">
+    <button class="menuBtn" id="logoutBtn" data-title="خروج">
+        <img src="icons/logout.svg">
     </button>
 
 </div>
@@ -237,28 +237,33 @@
     <img src="icons/location.svg" alt="انتخاب موقعیت">
 </div>
 
+
 </div>
 
-
-
-
-       <div class="filter-section">
+<div class="filter-section">
 
     <div class="search-box">
-
-        
 
         <input
             type="text"
             id="searchInput"
-            placeholder="جستجو ...">
+            placeholder="... جستجو">
 
-            <img
+        <img
             src="icons/search.svg"
             class="search-icon">
 
-    </div>
+        <button
+            type="button"
+            id="accountMenuBtn"
+            class="account-menu-btn"
+            aria-label="حساب کاربری">
 
+            <img src="icons/user.svg" alt="">
+
+        </button>
+
+    </div>
 
 </div>
 
@@ -389,24 +394,24 @@
 
        </div>
     <!-- سطر 4 -->
-       <div class="property-grid-3">
+<div class="property-grid-3">
 
-        <div class="field-row">
-            <label>متراژ:</label>
-            <input type="number" id="area">
-        </div>
+    <div class="field-row">
+        <label>متراژ:</label>
+        <input type="text" inputmode="numeric" id="area">
+    </div>
 
-        <div class="field-row">
-            <label>سال ساخت:</label>
-            <input type="number" id="year">
-        </div>
+    <div class="field-row">
+        <label>سال ساخت:</label>
+        <input type="text" inputmode="numeric" id="year">
+    </div>
 
-        <div class="field-row">
-            <label>خواب:</label>
-            <input type="number" id="rooms">
-        </div>
+    <div class="field-row">
+        <label>خواب:</label>
+        <input type="text" inputmode="numeric" id="rooms">
+    </div>
 
-       </div>
+</div>
     <!-- سطر 5 -->
        <div class="checkbox-group">
 
@@ -432,29 +437,29 @@
 
        </div>
     <!-- سطر 6 -->
-       <div class="property-grid-4">
+<div class="property-grid-4">
 
-        <div class="field-row">
-            <label>طبقات:</label>
-            <input type="number" id="totalFloors">
-        </div>
+    <div class="field-row">
+        <label>طبقات:</label>
+        <input type="text" inputmode="numeric" id="totalFloors">
+    </div>
 
-        <div class="field-row">
-            <label>واحدها:</label>
-            <input type="number" id="totalUnits">
-        </div>
+    <div class="field-row">
+        <label>واحدها:</label>
+        <input type="text" inputmode="numeric" id="totalUnits">
+    </div>
 
-        <div class="field-row">
-            <label>طبقه:</label>
-            <input type="number" id="floor">
-        </div>
+    <div class="field-row">
+        <label>طبقه:</label>
+        <input type="text" inputmode="numeric" id="floor">
+    </div>
 
-        <div class="field-row">
-            <label>واحد:</label>
-            <input type="number" id="unitNumber">
-        </div>
+    <div class="field-row">
+        <label>واحد:</label>
+        <input type="text" inputmode="numeric" id="unitNumber">
+    </div>
 
-       </div>
+</div>
 </div>
 
     <!-- STEP 2 -->
@@ -1322,6 +1327,431 @@
 
 </div>
 
+ <!-- ورود - صفحه اول -->
+
+<div id="roleEntryScreen" class="role-entry-screen" dir="rtl">
+    <div class="role-entry-box">
+
+        <span class="role-entry-label">سامانه دفتر املاک</span>
+
+        <h1>خوش آمدید</h1>
+
+        <p>
+            برای ادامه، نوع پنل خود را انتخاب کنید.
+        </p>
+
+        <div class="role-entry-options">
+
+            <button type="button" id="adminEntryBtn" class="role-entry-card admin-card">
+                <span class="role-entry-icon">⌂</span>
+
+                <span class="role-entry-content">
+                    <strong>پنل مدیریت</strong>
+                </span>
+
+                <span class="role-entry-arrow">←</span>
+            </button>
+
+            <button type="button" id="advisorEntryBtn" class="role-entry-card advisor-card">
+                <span class="role-entry-icon">♙</span>
+
+                <span class="role-entry-content">
+                    <strong>پنل مشاور</strong>
+                </span>
+
+                <span class="role-entry-arrow">←</span>
+            </button>
+
+        </div>
+
+    </div>
+</div>
+
+<div id="adminAccessScreen" class="role-entry-screen is-hidden" dir="rtl">
+    <div class="role-entry-box">
+
+        <button type="button" id="backToRolesBtn" class="entry-back-btn">
+            ← بازگشت
+        </button>
+
+        <span class="role-entry-label">پنل مدیریت</span>
+
+        <h1>مدیریت دفتر</h1>
+
+        <p>
+            برای اولین‌بار حساب مدیریت بسازید یا وارد حساب قبلی خود شوید.
+        </p>
+
+        <div class="role-entry-options">
+
+            <button type="button" id="createAdminAccountBtn"
+                class="role-entry-card create-admin-card">
+
+                <span class="role-entry-icon">＋</span>
+
+                <span class="role-entry-content">
+                    <strong>ایجاد حساب مدیریت</strong>
+                    <small>ساخت حساب و شروع ثبت دفتر جدید</small>
+                </span>
+
+                <span class="role-entry-arrow">←</span>
+            </button>
+
+            <button type="button" id="adminLoginBtn"
+                class="role-entry-card login-admin-card">
+
+                <span class="role-entry-icon">⌁</span>
+
+                <span class="role-entry-content">
+                    <strong>ورود به پنل مدیریت</strong>
+                    <small>ورود با نام کاربری و رمز عبور</small>
+                </span>
+
+                <span class="role-entry-arrow">←</span>
+            </button>
+
+        </div>
+
+    </div>
+</div>
+
+<div id="adminRegisterScreen" class="role-entry-screen is-hidden" dir="rtl">
+    <div class="role-entry-box">
+
+        <button type="button" id="backToAdminAccessBtn" class="entry-back-btn">
+            ← بازگشت
+        </button>
+
+        <span class="role-entry-label">حساب مدیریت</span>
+
+        <h1>ایجاد حساب مدیر</h1>
+
+        <p>
+            ابتدا حساب مدیریت خود را بسازید؛ در مرحلهٔ بعد اطلاعات دفتر را ثبت می‌کنید.
+        </p>
+
+        <form id="adminRegisterForm" class="entry-form">
+
+            <label class="entry-field">
+                <span>نام کاربری</span>
+                <input
+                    id="adminRegisterUsername"
+                    type="text"
+                    minlength="3"
+                    autocomplete="username"
+                    placeholder="مثلاً amlak_anzali"
+                    required
+                >
+            </label>
+
+            <label class="entry-field">
+                <span>رمز عبور</span>
+                <input
+                    id="adminRegisterPassword"
+                    type="password"
+                    minlength="6"
+                    autocomplete="new-password"
+                    placeholder="حداقل ۶ کاراکتر"
+                    required
+                >
+            </label>
+
+            <label class="entry-field">
+                <span>تکرار رمز عبور</span>
+                <input
+                    id="adminRegisterPasswordConfirm"
+                    type="password"
+                    minlength="6"
+                    autocomplete="new-password"
+                    placeholder="رمز عبور را دوباره وارد کنید"
+                    required
+                >
+            </label>
+
+            <p id="adminRegisterError" class="entry-form-error"></p>
+
+            <button type="submit" class="entry-submit-btn">
+                ساخت حساب و ادامه
+                <span>←</span>
+            </button>
+
+        </form>
+
+    </div>
+</div>
+
+<div id="adminLoginScreen" class="role-entry-screen is-hidden" dir="rtl">
+    <div class="role-entry-box">
+
+        <button type="button" id="backFromAdminLoginBtn" class="entry-back-btn">
+            ← بازگشت
+        </button>
+
+        <span class="role-entry-label">پنل مدیریت</span>
+
+        <h1>ورود به دفتر من</h1>
+
+        <p>
+            نام کاربری و رمز عبور حساب مدیریت خود را وارد کنید.
+        </p>
+
+        <form id="adminLoginForm" class="entry-form">
+
+            <label class="entry-field">
+                <span>نام کاربری</span>
+                <input
+                    id="adminLoginUsername"
+                    type="text"
+                    autocomplete="username"
+                    placeholder="نام کاربری"
+                    required
+                >
+            </label>
+
+            <label class="entry-field">
+                <span>رمز عبور</span>
+                <input
+                    id="adminLoginPassword"
+                    type="password"
+                    autocomplete="current-password"
+                    placeholder="رمز عبور"
+                    required
+                >
+            </label>
+
+            <p id="adminLoginError" class="entry-form-error"></p>
+
+            <button type="submit" class="entry-submit-btn">
+                ورود به پنل
+                <span>←</span>
+            </button>
+
+        </form>
+
+    </div>
+</div>
+
+<!-- پنل حساب کاربری -->
+<aside id="accountPanel" class="account-panel">
+
+    <div class="account-panel-header">
+        <h2>حساب کاربری</h2>
+
+        <button
+            type="button"
+            id="closeAccountPanel"
+            aria-label="بستن">
+            ×
+        </button>
+    </div>
+
+    <div class="account-panel-body">
+
+        <!-- مشخصات حساب -->
+        <div class="account-profile">
+
+            <div class="account-avatar">
+                <img src="icons/user.svg" alt="">
+            </div>
+
+            <div class="account-profile-info">
+                <strong id="accountUsername">نام کاربری</strong>
+                <span>مدیر دفتر</span>
+            </div>
+
+        </div>
+
+        <!-- اطلاعات دفتر -->
+        <div class="account-office-card">
+
+            <div class="account-office-heading">
+
+                <div class="account-office-logo">
+                    <img id="accountOfficeLogo" alt="لوگوی دفتر">
+                    <span id="accountOfficePlaceholder">دفتر</span>
+                </div>
+
+                <div class="account-office-title">
+                    <span>دفتر متصل به حساب</span>
+                    <strong id="accountOfficeName">نام دفتر</strong>
+                </div>
+
+            </div>
+
+            <div class="account-info-row">
+                <img src="icons/user.svg" alt="">
+                <span id="accountOfficeManager">نام مدیر</span>
+            </div>
+
+            <div class="account-info-row">
+                <img src="icons/phone.svg" alt="">
+                <span id="accountOfficePhone">شماره تماس</span>
+            </div>
+
+            <div class="account-info-row">
+                <img src="icons/location.svg" alt="">
+                <span id="accountOfficeAddress">آدرس دفتر</span>
+            </div>
+
+        </div>
+
+        <!-- تنظیمات حساب کاربری -->
+        <div class="account-settings-section">
+
+            <h3>تنظیمات حساب</h3>
+
+            <!-- تغییر رمز عبور -->
+            <button
+                type="button"
+                id="openPasswordForm"
+                class="account-setting-btn">
+
+                <span>تغییر رمز عبور</span>
+                <span>›</span>
+
+            </button>
+
+            <form
+                id="accountPasswordForm"
+                class="account-password-form is-hidden">
+
+                <div class="account-password-field">
+                    <label for="accountCurrentPassword">
+                        رمز عبور فعلی
+                    </label>
+
+                    <input
+                        type="password"
+                        id="accountCurrentPassword"
+                        placeholder="رمز فعلی را وارد کنید"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
+
+                <div class="account-password-field">
+                    <label for="accountNewPassword">
+                        رمز عبور جدید
+                    </label>
+
+                    <input
+                        type="password"
+                        id="accountNewPassword"
+                        placeholder="حداقل ۶ کاراکتر"
+                        minlength="6"
+                        autocomplete="new-password"
+                        required
+                    >
+                </div>
+
+                <div class="account-password-field">
+                    <label for="accountConfirmPassword">
+                        تکرار رمز عبور جدید
+                    </label>
+
+                    <input
+                        type="password"
+                        id="accountConfirmPassword"
+                        placeholder="رمز جدید را تکرار کنید"
+                        autocomplete="new-password"
+                        required
+                    >
+                </div>
+
+                <p
+                    id="accountPasswordMessage"
+                    class="account-password-message">
+                </p>
+
+                <div class="account-password-actions">
+
+                    <button
+                        type="submit"
+                        class="account-password-save">
+                        ذخیره رمز جدید
+                    </button>
+
+                    <button
+                        type="button"
+                        id="accountPasswordCancel"
+                        class="account-password-cancel">
+                        انصراف
+                    </button>
+
+                </div>
+
+            </form>
+
+            <!-- ویرایش نام کاربری -->
+            <button
+                type="button"
+                id="openUsernameForm"
+                class="account-setting-btn">
+
+                <span>ویرایش نام کاربری</span>
+                <span>›</span>
+
+            </button>
+
+            <form
+                id="accountUsernameForm"
+                class="account-password-form is-hidden">
+
+                <div class="account-password-field">
+                    <label for="accountNewUsername">
+                        نام کاربری جدید
+                    </label>
+
+                    <input
+                        type="text"
+                        id="accountNewUsername"
+                        placeholder="نام کاربری جدید را وارد کنید"
+                        autocomplete="username"
+                        minlength="3"
+                        required
+                    >
+                </div>
+
+                <p
+                    id="accountUsernameMessage"
+                    class="account-password-message">
+                </p>
+
+                <div class="account-password-actions">
+
+                    <button
+                        type="submit"
+                        class="account-password-save">
+                        ذخیره نام کاربری
+                    </button>
+
+                    <button
+                        type="button"
+                        id="accountUsernameCancel"
+                        class="account-password-cancel">
+                        انصراف
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <!-- خروج -->
+        <button
+            type="button"
+            id="accountLogoutBtn"
+            class="account-logout-btn">
+
+            <img src="icons/logout.svg" alt="">
+            <span>خروج از حساب کاربری</span>
+
+        </button>
+
+    </div>
+
+</aside>
 
 <script src="script.js"></script>
 
