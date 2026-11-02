@@ -1044,26 +1044,28 @@ body{
     }
 
 }
-.agency-marker-type{
+.agency-marker-type {
+    position: absolute;
+    top: 26px;
+    left: 53%;
+    z-index: 10;
 
-    position:absolute;
+    width: 70px;
+    height: 20px;
 
-    top:28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    left:53%;
-
-    transform:translateX(-50%);
-
-    color:white;
-
-    font-size:15px;
-    
+    transform: translateX(-50%);
+    color: #fff;
     font-family: vazirmatn;
-
-    font-weight:700;
-
-    z-index:10;
-
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    text-align: center;
+    pointer-events: none;
 }
 
 
@@ -1544,96 +1546,126 @@ overflow-y: auto !important;
 
 
 
-
-/* =========================
-   سرچ + فیلتر
-========================= */
-.filter-section{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:12px;
-
-}
 /* =========================
    سرچ باکس
 ========================= */
-.search-box{
+.search-box {
 
-    width:400px;
+    width: 400px;
+    height: 48px;
 
-    height:40px;
+    display: flex;
+    align-items: center;
 
-    display:flex;
+    direction: ltr;
 
-    align-items:center;
+    background: #172554;
 
-    background:#172554;
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 28px;
 
-    border:1px solid rgba(255,255,255,.08);
+    padding: 0 7px;
 
-    border-radius:18px;
+    box-sizing: border-box;
 
-    padding:0 16px;
-
-    transition:transform .25s ease;
+    transition: transform .25s ease;
 
 }
 .search-box:hover,
-.search-box:focus-within{
+.search-box:focus-within {
+    transform: scale(1.03);
+}
+/* =========================
+   آیکون جستجو - سمت چپ
+========================= */
+.search-icon {
 
-    transform:scale(1.05);
+    order: 1;
+
+    width: 23px;
+    height: 23px;
+
+    flex-shrink: 0;
+
+    filter: brightness(0) invert(1);
+
+    margin-right: 5px;
+
+    position: relative;
+    right: -5px;
 
 }
-.search-icon{
+/* =========================
+   ورودی جستجو
+========================= */
+.search-box input {
 
-    width:24px;
+    order: 2;
 
-    height:24px;
+    flex: 1;
+    min-width: 0;
+    height: 100%;
 
-    filter:brightness(0) invert(1);
+    direction: ltr;
+    text-align: left;
 
-    opacity:1;
+    border: none;
+    outline: none;
 
-    transition:.25s;
+    background: transparent;
 
-}
-.search-box:hover .search-icon,
-.search-box:focus-within .search-icon{
+    color: #fff;
 
-    transform:scale(1.05);
+    font-family: Vazirmatn;
+    font-size: 14px;
 
-}
-.search-box input{
-
-    flex:1;
-
-    border:none;
-
-    outline:none;
-
-    background:transparent;
-
-    color:#ffffff;
-
-    font-family:Vazirmatn;
-
-    font-size:14px;
-
-    padding-right:12px;
+    padding: 0 10px;
 
 }
-.search-box input::placeholder{
+.search-box input::placeholder {
+    color: rgba(255,255,255,.8);
+    text-align: left;
+}
+/* =========================
+   دکمه حساب کاربری - سمت راست
+========================= */
+.account-menu-btn {
 
-    color:#ffffff;
+    order: 3;
+
+    width: 36px;
+    height: 36px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: 1px solid rgba(255,255,255,.35);
+    border-radius: 50%;
+
+    background: #263b70;
+
+    cursor: pointer;
+
+    transition: .2s ease;
 
 }
+.account-menu-btn:hover {
+    background: #354d85;
+    transform: scale(1.05);
+}
+.account-menu-btn img {
 
+    width: 21px;
+    height: 21px;
 
+    filter: brightness(0) invert(1);
 
-
+}
 
 
 
@@ -2325,8 +2357,8 @@ overflow-y: auto !important;
     top:20px;
     right:20px;
 
-    width:60px;
-    height:60px;
+    width:50px;
+    height:50px;
 
     border:none;
 
@@ -2356,9 +2388,9 @@ overflow-y: auto !important;
 }
 #controlCenterBtn img{
 
-    width:30px;
+    width:25px;
 
-    height:30px;
+    height:25px;
 
     filter:brightness(0) invert(1);
 
@@ -2438,6 +2470,8 @@ overflow-y: auto !important;
     }
 
 }
+
+
 /* =========================
    منوی مرکز کنترل
 ========================= */
@@ -2453,8 +2487,8 @@ overflow-y: auto !important;
 
     position:absolute;
 
-    width:60px;
-    height:60px;
+    width:50px;
+    height:50px;
 
     border:none;
 
@@ -2488,29 +2522,29 @@ overflow-y: auto !important;
 }
 #controlMenu.active .menuBtn:nth-child(2){
 
-    transform:translate(20px,140px);
+    transform:translate(20px,130px);
 
 }
 #controlMenu.active .menuBtn:nth-child(3){
 
-    transform:translate(20px,210px);
+    transform:translate(20px,190px);
 
 }
 #controlMenu.active .menuBtn:nth-child(4){
 
-    transform:translate(20px,280px);
+    transform:translate(20px,250px);
 
 }
 #controlMenu.active .menuBtn:nth-child(5){
 
-    transform:translate(20px,350px);
+    transform:translate(20px,310px);
 
 }
 .menuBtn img{
 
-    width:40px;
+    width:30px;
 
-    height:40px;
+    height:30px;
 
     filter:brightness(0) invert(1);
 
@@ -2552,39 +2586,22 @@ overflow-y: auto !important;
 .menuBtn::after{
 
     content:attr(data-title);
-
     position:absolute;
-
     top:50%;
-
     right:115%;
-
     left:auto;
-
     bottom:auto;
-
     transform:translateY(-50%);
-
     background:#052058;
-
     color:#fff;
-
     padding:6px 12px;
-
     border-radius:10px;
-
     font-family:Estedad;
-
-    font-size:18px;
-
+    font-size:15px;
     white-space:nowrap;
-
     opacity:0;
-
     pointer-events:none;
-
     transition:.25s ease;
-
     box-shadow:
     0 4px 12px rgba(0,0,0,.25);
 
@@ -2607,8 +2624,8 @@ overflow-y: auto !important;
     right:25px;
     bottom:25px;
 
-    width:60px;
-    height:60px;
+    width:50px;
+    height:50px;
 
     border:none;
 
@@ -2631,7 +2648,6 @@ overflow-y: auto !important;
     gap:4px;
 
 }
-/* موج پشت دکمه */
 #addBtn::after{
 
     content:"";
@@ -2678,19 +2694,17 @@ overflow-y: auto !important;
     }
 
 }
-/* آیکون */
 #addBtn img{
 
-    width:30px;
+    width:25px;
 
-    height:30px;
+    height:25px;
 
     filter:brightness(0) invert(1);
 
     transition:.25s ease;
 
 }
-/* هاور */
 #addBtn:hover::before{
 
     border-color:#38BDF8;
@@ -2760,7 +2774,6 @@ overflow-y: auto !important;
     opacity .25s ease;
 
 }
-/* حالت باز */
 #addMenu.active{
 
     opacity:1;
@@ -2802,7 +2815,6 @@ overflow-y: auto !important;
     box-shadow .25s ease;
 
 }
-/* آیکون */
 .addMenuBtn img{
 
     width:22px;
@@ -2814,7 +2826,6 @@ overflow-y: auto !important;
     transition:.25s ease;
 
 }
-/* متن */
 .addMenuBtn span{
 
     color:#fff;
@@ -2822,7 +2833,6 @@ overflow-y: auto !important;
     transition:.25s ease;
 
 }
-/* هاور */
 .addMenuBtn:hover span{
 
     color:#38BDF8;
@@ -2844,44 +2854,8 @@ overflow-y: auto !important;
 
 }
 /* ================= MOBILE ================= */
-@media (max-width:768px){
 
-    .filter-section{
 
-        width:100%;
-
-        gap:8px;
-
-    }
-
-    .search-box{
-
-        width:100%;
-
-        flex:1;
-
-    }
-
-}
-@media (max-width:768px){
-
-    #controlCenterBtn{
-
-        position:fixed;
-
-        right:25px;
-
-        bottom:100px;
-
-        top:auto;
-
-        z-index:9998;
-
-    }
-
-}
-
-/*
 @media (max-width: 768px) {
 
     .filter-section {
@@ -2897,7 +2871,7 @@ overflow-y: auto !important;
     #controlCenterBtn {
         position: fixed;
         right: 25px;
-        bottom: 100px;
+        bottom: 90px;
         top: auto;
         z-index: 9998;
     }
@@ -2906,10 +2880,11 @@ overflow-y: auto !important;
         opacity: 1;
         visibility: visible;
         transform: translateY(-50%);
+        font-size:10px;
     }
 
 }
-*/
+
 
 
 
@@ -6611,3 +6586,813 @@ input[type="number"]{
     }
 }
 
+
+
+.role-entry-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background:
+        radial-gradient(circle at top right, #dbeafe, transparent 40%),
+        linear-gradient(135deg, #f8fafc, #eef4ff);
+}
+.role-entry-box {
+    width: min(100%, 520px);
+    padding: 38px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 26px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 20px 55px rgba(15, 23, 42, 0.14);
+    text-align: right;
+}
+.role-entry-label {
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 700;
+}
+.role-entry-box h1 {
+    margin: 10px 0 8px;
+    color: #0f172a;
+    font-size: 28px;
+}
+.role-entry-box > p {
+    margin: 0 0 28px;
+    color: #64748b;
+    line-height: 1.8;
+}
+.role-entry-options {
+    display: grid;
+    gap: 14px;
+}
+.role-entry-card {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 17px;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    background: #fff;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: right;
+    transition: 0.2s ease;
+}
+.role-entry-card:hover {
+    transform: translateY(-3px);
+    border-color: #93c5fd;
+    box-shadow: 0 12px 25px rgba(37, 99, 235, 0.12);
+}
+.role-entry-icon {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 48px;
+    border-radius: 14px;
+    font-size: 25px;
+}
+.admin-card .role-entry-icon {
+    color: #1d4ed8;
+    background: #dbeafe;
+}
+.advisor-card .role-entry-icon {
+    color: #047857;
+    background: #d1fae5;
+}
+.role-entry-content {
+    display: grid;
+    gap: 5px;
+    flex: 1;
+}
+.role-entry-content strong {
+    color: #0f172a;
+    font-size: 16px;
+}
+.role-entry-content small {
+    color: #64748b;
+    font-size: 12px;
+}
+.role-entry-arrow {
+    color: #94a3b8;
+    font-size: 22px;
+}
+@media (max-width: 520px) {
+    .role-entry-box {
+        padding: 26px 20px;
+    }
+}
+.role-entry-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 24px;
+    background:
+        radial-gradient(circle at 15% 20%, rgba(14, 165, 233, 0.35), transparent 28%),
+        radial-gradient(circle at 85% 80%, rgba(16, 185, 129, 0.28), transparent 25%),
+        linear-gradient(135deg, #07111f 0%, #0b1d33 50%, #07111f 100%);
+}
+.role-entry-screen::before,
+.role-entry-screen::after {
+    content: "";
+    position: absolute;
+    width: 330px;
+    height: 330px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+}
+.role-entry-screen::before {
+    top: -150px;
+    right: -100px;
+}
+.role-entry-screen::after {
+    bottom: -190px;
+    left: -90px;
+}
+.role-entry-box {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 560px);
+    padding: 42px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 30px;
+    background: rgba(10, 25, 45, 0.7);
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(18px);
+    text-align: right;
+}
+.role-entry-label {
+    display: inline-flex;
+    padding: 7px 12px;
+    border: 1px solid rgba(125, 211, 252, 0.3);
+    border-radius: 999px;
+    color: #7dd3fc;
+    background: rgba(14, 165, 233, 0.12);
+    font-size: 12px;
+    font-weight: 700;
+}
+.role-entry-box h1 {
+    margin: 17px 0 8px;
+    color: #f8fafc;
+    font-size: 32px;
+}
+.role-entry-box > p {
+    margin: 0 0 30px;
+    color: #b6c4d5;
+    line-height: 1.9;
+}
+.role-entry-options {
+    display: grid;
+    gap: 15px;
+}
+.role-entry-card {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 19px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    font-family: inherit;
+    text-align: right;
+    transition: 0.25s ease;
+}
+.role-entry-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: 0.25s ease;
+}
+.admin-card::before {
+    background: linear-gradient(120deg, rgba(37, 99, 235, 0.28), transparent 70%);
+}
+.advisor-card::before {
+    background: linear-gradient(120deg, rgba(5, 150, 105, 0.28), transparent 70%);
+}
+.role-entry-card:hover {
+    transform: translateY(-5px) scale(1.01);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+.role-entry-card:hover::before {
+    opacity: 1;
+}
+.role-entry-icon,
+.role-entry-content,
+.role-entry-arrow {
+    position: relative;
+    z-index: 1;
+}
+.role-entry-icon {
+    width: 54px;
+    height: 54px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 54px;
+    border-radius: 17px;
+    font-size: 26px;
+}
+.admin-card .role-entry-icon {
+    color: #bfdbfe;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    box-shadow: 0 10px 22px rgba(37, 99, 235, 0.35);
+}
+.advisor-card .role-entry-icon {
+    color: #d1fae5;
+    background: linear-gradient(135deg, #059669, #047857);
+    box-shadow: 0 10px 22px rgba(5, 150, 105, 0.35);
+}
+.role-entry-content {
+    display: grid;
+    gap: 6px;
+    flex: 1;
+}
+.role-entry-content strong {
+    color: #f8fafc;
+    font-size: 17px;
+}
+.role-entry-content small {
+    color: #b6c4d5;
+    font-size: 12px;
+}
+.role-entry-arrow {
+    color: #cbd5e1;
+    font-size: 24px;
+    transition: 0.25s ease;
+}
+.role-entry-card:hover .role-entry-arrow {
+    transform: translateX(-6px);
+    color: #fff;
+}
+@media (max-width: 520px) {
+    .role-entry-box {
+        padding: 30px 21px;
+        border-radius: 24px;
+    }
+
+    .role-entry-box h1 {
+        font-size: 27px;
+    }
+}
+
+
+
+
+
+.role-entry-screen.is-hidden {
+    display: none;
+}
+.entry-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 25px;
+    padding: 0;
+    border: 0;
+    color: #cbd5e1;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    transition: 0.2s ease;
+}
+.entry-back-btn:hover {
+    color: #fff;
+    transform: translateX(4px);
+}
+.create-admin-card .role-entry-icon {
+    color: #dbeafe;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    box-shadow: 0 10px 22px rgba(124, 58, 237, 0.35);
+}
+.login-admin-card .role-entry-icon {
+    color: #cffafe;
+    background: linear-gradient(135deg, #0891b2, #0369a1);
+    box-shadow: 0 10px 22px rgba(8, 145, 178, 0.35);
+}
+
+
+
+.entry-form {
+    display: grid;
+    gap: 16px;
+    margin-top: 28px;
+}
+.entry-field {
+    display: grid;
+    gap: 8px;
+    color: #dbeafe;
+    font-size: 13px;
+    font-weight: 700;
+}
+.entry-field input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 13px;
+    outline: none;
+    color: #f8fafc;
+    background: rgba(255, 255, 255, 0.07);
+    font-family: inherit;
+    transition: 0.2s ease;
+}
+.entry-field input::placeholder {
+    color: #7890aa;
+}
+.entry-field input:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.13);
+}
+.entry-form-error {
+    min-height: 18px;
+    margin: 0;
+    color: #fca5a5;
+    font-size: 12px;
+}
+.entry-submit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 4px;
+    padding: 15px;
+    border: 0;
+    border-radius: 14px;
+    color: #fff;
+    background: linear-gradient(135deg, #2563eb, #4f46e5);
+    box-shadow: 0 12px 25px rgba(37, 99, 235, 0.28);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    transition: 0.2s ease;
+}
+.entry-submit-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+
+/* =========================
+   ACCOUNT SIDE PANEL
+========================= */
+
+.account-panel {
+    position: fixed;
+    top: 0;
+    right: -500px;
+
+    width: 500px;
+    max-width: 100vw;
+    height: 100dvh;
+
+    display: flex;
+    flex-direction: column;
+
+    background: #172554;
+    color: #fff;
+
+    border-radius: 5px 0 0 5px;
+    box-shadow: -5px 0 20px rgba(0,0,0,.18);
+
+    z-index: 10001;
+    overflow: hidden;
+
+    transition: right .3s ease;
+
+    direction: rtl;
+    font-family: Vazirmatn, sans-serif;
+}
+
+.account-panel.open {
+    right: 0;
+}
+
+/* سربرگ */
+
+.account-panel-header {
+    height: 65px;
+    min-height: 65px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 22px;
+
+    background: #111d3b;
+    border-bottom: 1px solid #293b60;
+}
+
+.account-panel-header h2 {
+    margin: 0;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.account-panel-header button {
+    width: 34px;
+    height: 34px;
+
+    border: 1px solid #405783;
+    border-radius: 9px;
+
+    background: #334775;
+    color: #fff;
+
+    font-size: 23px;
+    cursor: pointer;
+}
+
+/* محتوای پنل */
+
+.account-panel-body {
+    flex: 1;
+    min-height: 0;
+
+    padding: 22px 18px;
+
+    overflow-y: auto;
+}
+
+/* پروفایل */
+
+.account-profile {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    padding: 15px;
+
+    background: #1e3263;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 12px;
+}
+
+.account-avatar {
+    width: 55px;
+    height: 55px;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #304a7a;
+    border-radius: 50%;
+}
+
+.account-avatar img {
+    width: 27px;
+    height: 27px;
+    filter: brightness(0) invert(1);
+}
+
+.account-profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+
+.account-profile-info strong {
+    color: #fff;
+    font-size: 15px;
+}
+
+.account-profile-info span {
+    color: #93b4e8;
+    font-size: 12px;
+}
+
+/* کارت دفتر */
+
+.account-office-card {
+    margin-top: 22px;
+    padding: 16px;
+
+    background: #1e3263;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 12px;
+}
+
+.account-office-heading {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    margin-bottom: 18px;
+}
+
+.account-office-logo {
+    width: 62px;
+    height: 62px;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    background: #102448;
+    border: 1px solid #405783;
+    border-radius: 10px;
+}
+
+.account-office-logo img {
+    display: none;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.account-office-logo span {
+    color: #a9bedf;
+    font-size: 12px;
+}
+
+.account-office-title {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.account-office-title span {
+    color: #93b4e8;
+    font-size: 11px;
+}
+
+.account-office-title strong {
+    color: #fff;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+/* اطلاعات دفتر */
+
+.account-info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+
+    margin-top: 10px;
+    padding: 10px;
+
+    background: #172b55;
+    border-radius: 8px;
+
+    color: #e2eaff;
+    font-size: 12px;
+    line-height: 1.9;
+}
+
+.account-info-row img {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+
+    margin-top: 4px;
+
+    filter: brightness(0) invert(1);
+}
+
+.account-info-row span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+/* تنظیمات حساب */
+
+.account-settings-section {
+    margin-top: 22px;
+    padding: 16px;
+
+    background: #1e3263;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 12px;
+}
+
+.account-settings-section h3 {
+    margin: 0 0 14px;
+
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* دکمه‌های تنظیمات */
+
+.account-setting-btn {
+    width: 100%;
+    min-height: 45px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-top: 9px;
+    padding: 10px 13px;
+
+    background: #172b55;
+    border: 1px solid #334b78;
+    border-radius: 9px;
+
+    color: #e2eaff;
+    font-family: inherit;
+    font-size: 13px;
+
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.account-setting-btn:hover {
+    background: #263f70;
+    border-color: #5476ad;
+}
+
+.account-setting-btn span:last-child {
+    color: #93b4e8;
+    font-size: 21px;
+    line-height: 1;
+}
+
+/* فرم‌های حساب */
+
+.account-password-form {
+    margin-top: 14px;
+    padding: 14px;
+
+    background: #172b55;
+    border: 1px solid #334b78;
+    border-radius: 9px;
+}
+
+.account-password-form.is-hidden {
+    display: none;
+}
+
+.account-password-field {
+    margin-bottom: 13px;
+}
+
+.account-password-field label {
+    display: block;
+    margin-bottom: 7px;
+
+    color: #cbd5e1;
+    font-size: 12px;
+}
+
+.account-password-field input {
+    width: 100%;
+    height: 42px;
+
+    padding: 0 12px;
+    box-sizing: border-box;
+
+    background: #0f1d40;
+    border: 1px solid #405783;
+    border-radius: 8px;
+
+    outline: none;
+    color: #fff;
+
+    font-family: inherit;
+    font-size: 12px;
+    direction: rtl;
+
+    transition: .2s ease;
+}
+
+.account-password-field input::placeholder {
+    color: #7185aa;
+}
+
+.account-password-field input:focus {
+    border-color: #60a5fa;
+    background: #13264d;
+}
+
+.account-password-message {
+    min-height: 18px;
+    margin: 8px 0;
+
+    color: #f87171;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+/* دکمه‌های فرم */
+
+.account-password-actions {
+    display: flex;
+    gap: 9px;
+    margin-top: 12px;
+}
+
+.account-password-actions button {
+    flex: 1;
+    min-height: 40px;
+
+    border: 0;
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.account-password-save {
+    background: #2563eb;
+    color: #fff;
+}
+
+.account-password-save:hover {
+    background: #1d4ed8;
+}
+
+.account-password-cancel {
+    background: #334775;
+    color: #dbeafe;
+}
+
+.account-password-cancel:hover {
+    background: #405783;
+}
+
+/* خروج */
+
+.account-logout-btn {
+    width: 100%;
+    min-height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    margin-top: 22px;
+    padding: 10px;
+
+    background: #4b1826;
+    border: 1px solid #ef4444;
+    border-radius: 10px;
+
+    color: #ffb4c0;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.account-logout-btn:hover {
+    background: #702033;
+}
+
+.account-logout-btn img {
+    width: 19px;
+    height: 19px;
+    filter: brightness(0) invert(1);
+}
+
+/* موبایل */
+
+@media (max-width: 500px) {
+
+    .account-panel {
+        width: 100vw;
+        right: -100vw;
+        border-radius: 0;
+    }
+
+    .account-panel-header {
+        padding: 0 18px;
+    }
+
+    .account-panel-body {
+        padding: 18px 14px;
+    }
+
+}
