@@ -1,13 +1,19 @@
-// =========================
-// MAP
-// =========================
+
+
+
+
+
+
+// ======================================================
+// بخش ۰۱ ـ راه‌اندازی نقشه و محدوده جغرافیایی بندرانزلی
+// ======================================================
 
 let map = L.map('map', {
     zoomControl: false
 }).setView([37.473, 49.458], 13);
 
 
-// لایه نقشه اصلی
+// افزودن لایه نقشه اصلی از OpenStreetMap
 const lightMap = L.tileLayer(
     'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     {
@@ -17,7 +23,7 @@ const lightMap = L.tileLayer(
 ).addTo(map);
 
 
-// بارگذاری محدوده بندرانزلی
+// دریافت و ترسیم مرز جغرافیایی بندرانزلی
 fetch("bandar_anzali.geojson")
     .then(response => {
         if (!response.ok) {
@@ -36,15 +42,22 @@ fetch("bandar_anzali.geojson")
             }
         }).addTo(map);
 
-        map.fitBounds(border.getBounds());
+        const currentUser = getCurrentUser();
+
+        if (currentUser?.agencyId) {
+            zoomToMyOffice(false);
+        } else {
+            map.fitBounds(border.getBounds());
+        }
     })
     .catch(error => {
         console.error("خطا در بارگذاری محدوده:", error);
     });
 
-// =========================
-// VARIABLES
-// =========================
+
+// ======================================================
+// بخش ۰۲ ـ متغیرها و وضعیت‌های عمومی برنامه
+// ======================================================
 
 let selectedLat = null;
 let selectedLng = null;
@@ -77,6 +90,7 @@ let galleryImages = [];
 let currentGalleryIndex = 0;
 
 
+// بارگذاری اطلاعات املاک از حافظه مرورگر
 const savedProperties =
     localStorage.getItem("properties");
 
@@ -86,35 +100,40 @@ if(savedProperties){
         JSON.parse(savedProperties);
 
 }
-function getPropertyIcon(type){
 
-    if(type === "آپارتمان"){
-        return apartmentIcon;
-    }
 
-    if(type === "ویلا"){
-        return villaIcon;
-    }
+// ======================================================
+// بخش ۰۳ ـ آیکون‌ها و نشانگرهای املاک
+// ======================================================
 
-    if(type === "زمین"){
-        return landIcon;
-    }
+// تبدیل نوع ملک به آیکون متناسب
+function getPropertyIcon(type) {
+    const propertyIcons = {
+        apartment: apartmentIcon,
+        "آپارتمان": apartmentIcon,
 
-    if(type === "مغازه"){
-        return shopIcon;
-    }
+        villa: villaIcon,
+        "ویلا": villaIcon,
+        "ویلایی": villaIcon,
 
-    if(type === "اداری"){
-        return officeIcon;
-    }
+        land: landIcon,
+        "زمین": landIcon,
 
-    return apartmentIcon;
+        shop: shopIcon,
+        "مغازه": shopIcon,
 
+        office: officeIcon,
+        "اداری": officeIcon
+    };
+
+    return propertyIcons[type?.trim()] || apartmentIcon;
 }
 
 
 let currentStep = 1;
 
+
+// ساخت نشانگر سفارشی برای نمایش روی نقشه
 
 function createMarker(color, icon){
 
@@ -136,34 +155,35 @@ function createMarker(color, icon){
 
 }
 
+// آیکون اختصاصی آپارتمان
 const apartmentIcon = L.icon({
     iconUrl: "icons/apartment.png",
     iconSize: [60, 60],
     iconAnchor: [30, 60],
     popupAnchor: [0, -60]
 });
-
+// آیکون اختصاصی ویلا
 const villaIcon = L.icon({
     iconUrl: "icons/villa.png",
     iconSize: [60, 60],
     iconAnchor: [30, 60],
     popupAnchor: [0, -60]
 });
-
+// آیکون اختصاصی زمین
 const landIcon = L.icon({
     iconUrl: "icons/land.png",
     iconSize: [60, 60],
     iconAnchor: [30, 60],
     popupAnchor: [0, -60]
 });
-
+// آیکون اختصاصی مغازه
 const shopIcon = L.icon({
     iconUrl: "icons/shop.png",
     iconSize: [60, 60],
     iconAnchor: [30, 60],
     popupAnchor: [0, -60]
 });
-
+// آیکون اختصاصی دفتر اداری
 const officeIcon = L.icon({
     iconUrl: "icons/office.png",
     iconSize: [60, 60],
@@ -171,314 +191,400 @@ const officeIcon = L.icon({
     popupAnchor: [0, -60]
 });
 
+
 let propertyMarkers = [];
 
-function formatPrice(price){
 
-    if(!price){
-        return "-";
-    }
 
-    return Number(price).toLocaleString("fa-IR");
 
+// =========================
+// سیستم عمومی مدیریت اعداد
+// =========================
+
+// تبدیل اعداد فارسی و عربی به انگلیسی
+function toEnglishDigits(value) {
+    return String(value ?? "")
+        .replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+        .replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
 }
 
+// تبدیل اعداد به فارسی
+function toPersianDigits(value) {
+    return String(value ?? "")
+        .replace(/[0-9]/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]);
+}
+
+// پاک‌سازی عدد
+function cleanNumber(value) {
+    return toEnglishDigits(value)
+        .replace(/[٬,،\s]/g, "")
+        .replace(/[^\d]/g, "");
+}
+
+// نمایش عدد با کاما و ارقام فارسی
+function formatNumber(value) {
+    const number = cleanNumber(value);
+
+    if (!number) return "—";
+
+    return Number(number).toLocaleString("fa-IR");
+}
+
+// نمایش قیمت
+function formatPrice(value) {
+    return formatNumber(value);
+}
+
+// نمایش قیمت همراه تومان
+function priceWithUnit(value) {
+    const price = formatPrice(value);
+
+    return price === "—"
+        ? "—"
+        : `${price} <small class="price-currency">تومان</small>`;
+}
+
+// نمایش عدد همراه واحد
+function withUnit(value, unit) {
+    const text = cleanNumber(value);
+
+    return text
+        ? `${formatNumber(text)} ${unit}`
+        : "—";
+}
+
+// نمایش مقدار یا خط تیره
+function valueOrDash(value) {
+    return formatNumber(value);
+}
+
+
+
+
+// ======================================================
+// بخش ۰۴ ـ نمایش املاک روی نقشه و ساخت پاپ‌آپ
+// ======================================================
+
+// ساخت یا بازسازی نشانگرهای املاک
 function renderProperties(data = properties){
 
-console.log("START");
+    console.log("START");
 
-markers.forEach(marker => {
-    map.removeLayer(marker);
-});
+    markers.forEach(marker => {
+        map.removeLayer(marker);
+    });
 
-markers = [];
+    markers = [];
+
+    const currentUser = getCurrentUser();
+
+    // فقط فایل‌های دفترِ حساب واردشده
+    const visibleProperties =
+    data.filter(
+        property =>
+            property &&
+            property.agencyId === currentUser?.agencyId
+    );
 
 
-    data.forEach(function(property){
+    visibleProperties.forEach(function(property){
 
-    if(
-        !property ||
-        property.lat === null ||
-        property.lng === null
-    ){
-        return;
-    }
-
-//console.log(property.propertyType);
-
-    const marker = L.marker(
-        [property.lat, property.lng],
-        {
-            icon: getPropertyIcon(
-                property.propertyType
-            )
+        if(
+            !property ||
+            property.lat === null ||
+            property.lng === null
+        ){
+            return;
         }
-    ).addTo(map);
 
-    markers.push(marker);
+        //console.log(property.propertyType);
 
-    //console.log(property);
+        const marker = L.marker(
+            [property.lat, property.lng],
+            {
+                icon: getPropertyIcon(
+                    property.propertyType
+                )
+            }
+        ).addTo(map);
 
-    marker.on("click", function () {
-    if (window.innerWidth <= 768) {
-        map.panTo(marker.getLatLng(), {
-            animate: true
+        markers.push(marker);
+
+        //console.log(property);
+
+
+        // تنظیم رفتار کلیک روی نشانگر در موبایل
+        marker.on("click", function () {
+            if (window.innerWidth <= 768) {
+                map.panTo(marker.getLatLng(), {
+                    animate: true
+                });
+            }
         });
-    }
-});
-
- 
 
 
+        // ساخت پاپ‌آپ اطلاعات ملک
+        marker.bindPopup(`
+            <div class="property-popup">
 
-marker.bindPopup(`
-    <div class="property-popup">
+                <!-- بخش بالا: اطلاعات سمت راست، عکس سمت چپ -->
+                <div class="popup-top">
 
-        <!-- بخش بالا: اطلاعات سمت راست، عکس سمت چپ -->
-        <div class="popup-top">
+                    <div class="popup-main-info">
 
-            <div class="popup-main-info">
+                        <!-- سطر اول: نوع معامله -->
+                        <div class="popup-deal-row">
 
-                <!-- سطر اول: نوع معامله -->
-                <div class="popup-deal-row">
+                            <span class="popup-deal deal-${property.dealType}">
+                                ${
+                                    property.dealType === "sell" ? "فروش" :
+                                    property.dealType === "deposit" ? "رهن کامل" :
+                                    property.dealType === "rent" ? "اجاره" :
+                                    "رهن و اجاره"
+                                }
+                            </span>
 
-                    <span class="popup-deal deal-${property.dealType}">
+                        </div>
+
+
+                        <!-- سطر دوم: نوع ملک + عنوان -->
+                        <div class="popup-property-title-row">
+
+                            <span class="popup-property-badge badge-${({
+                                "apartment": "apartment",
+                                "villa": "villa",
+                                "land": "land",
+                                "shop": "shop",
+                                "office": "office",
+                                "آپارتمان": "apartment",
+                                "ویلا": "villa",
+                                "زمین": "land",
+                                "مغازه": "shop",
+                                "اداری": "office"
+                            })[property.propertyType] || "default"}">
+                                ${
+                                    ({
+                                        "apartment": "آپارتمان",
+                                        "villa": "ویلا",
+                                        "land": "زمین",
+                                        "shop": "مغازه",
+                                        "office": "اداری",
+                                        "آپارتمان": "آپارتمان",
+                                        "ویلا": "ویلا",
+                                        "زمین": "زمین",
+                                        "مغازه": "مغازه",
+                                        "اداری": "اداری"
+                                    })[property.propertyType] || property.propertyType || ""
+                                }
+                            </span>
+
+                            ${
+                                property.title && property.title.trim()
+                                ? `<span class="popup-title">${property.title.trim()}</span>`
+                                : ""
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- قاب عکس مربع سمت چپ -->
+                    <div class="popup-image-container">
                         ${
-                            property.dealType === "sell" ? "فروش" :
-                            property.dealType === "deposit" ? "رهن کامل" :
-                            property.dealType === "rent" ? "اجاره" :
-                            "رهن و اجاره"
+                            property.images &&
+                            property.images.length &&
+                            property.images[0]
+                            ? `
+                                <img
+                                    src="${property.images[0]}"
+                                    class="popup-image"
+                                    alt="تصویر ملک"
+                                >
+                            `
+                            : `
+                                <div class="popup-no-image">
+                                    فاقد تصویر
+                                </div>
+                            `
                         }
-                    </span>
+                    </div>
 
                 </div>
 
-                <!-- سطر دوم: نوع ملک + عنوان -->
-                <div class="popup-property-title-row">
 
-                    <span class="popup-property-badge badge-${({
-                        "apartment": "apartment",
-                        "villa": "villa",
-                        "land": "land",
-                        "shop": "shop",
-                        "office": "office",
-                        "آپارتمان": "apartment",
-                        "ویلا": "villa",
-                        "زمین": "land",
-                        "مغازه": "shop",
-                        "اداری": "office"
-                    })[property.propertyType] || "default"}">
-                        ${
-                            ({
-                                "apartment": "آپارتمان",
-                                "villa": "ویلا",
-                                "land": "زمین",
-                                "shop": "مغازه",
-                                "office": "اداری",
-                                "آپارتمان": "آپارتمان",
-                                "ویلا": "ویلا",
-                                "زمین": "زمین",
-                                "مغازه": "مغازه",
-                                "اداری": "اداری"
-                            })[property.propertyType] || property.propertyType || ""
-                        }
-                    </span>
+                <!-- آدرس ملک -->
+                <div class="popup-address">
+
+                    <img
+                        src="icons/location.svg"
+                        alt=""
+                        class="popup-location-icon"
+                    >
+
+                    <span>${property.address || "آدرس ثبت نشده"}</span>
+
+                </div>
+
+
+                <!-- مشخصات ملک -->
+                <div class="popup-specs">
+
+                    <div class="popup-spec">
+                        <strong>${property.area || "—"}</strong>
+                        <span>متر مربع</span>
+                    </div>
+
+                    <div class="popup-spec">
+                        <strong>${property.rooms || "—"}</strong>
+                        <span>اتاق</span>
+                    </div>
+
+                    <div class="popup-spec">
+                        <strong>${property.year || "—"}</strong>
+                        <span>سال ساخت</span>
+                    </div>
+
+                </div>
+
+
+                <!-- قیمت‌ها -->
+                <div class="popup-price-grid">
 
                     ${
-                        property.title && property.title.trim()
-                        ? `<span class="popup-title">${property.title.trim()}</span>`
-                        : ""
+                        property.dealType === "sell"
+                        ? `
+                            <div class="popup-price-card">
+                                <span>قیمت فروش</span>
+                                <strong>${formatPrice(property.sellPrice)} تومان</strong>
+                            </div>
+
+                            <div class="popup-price-card">
+                                <span>متری</span>
+                                <strong>${formatPrice(property.pricePerMeter)} تومان</strong>
+                            </div>
+                        `
+                        : property.dealType === "deposit"
+                        ? `
+                            <div class="popup-price-card popup-price-full">
+                                <span>رهن کامل</span>
+                                <strong>${formatPrice(property.depositPrice)} تومان</strong>
+                            </div>
+                        `
+                        : property.dealType === "rent"
+                        ? `
+                            <div class="popup-price-card">
+                                <span>ودیعه</span>
+                                <strong>${formatPrice(property.rentDeposit)} تومان</strong>
+                            </div>
+
+                            <div class="popup-price-card">
+                                <span>کرایه</span>
+                                <strong>${formatPrice(property.rentPrice)} تومان</strong>
+                            </div>
+                        `
+                        : `
+                            <div class="popup-price-card">
+                                <span>رهن</span>
+                                <strong>${formatPrice(property.depositPrice)} تومان</strong>
+                            </div>
+
+                            <div class="popup-price-card">
+                                <span>اجاره ماهانه</span>
+                                <strong>${formatPrice(property.rentPrice)} تومان</strong>
+                            </div>
+                        `
                     }
 
                 </div>
 
-            </div>
 
-            <!-- قاب عکس مربع سمت چپ -->
-            <div class="popup-image-container">
-                ${
-                    property.images &&
-                    property.images.length &&
-                    property.images[0]
-                    ? `
+                <!-- دکمه‌های عملیات ملک -->
+                <div class="popup-actions popup-actions-row">
+
+                    <button
+                        class="details-btn"
+                        onclick="showPropertyDetails(${property.id})">
                         <img
-                            src="${property.images[0]}"
-                            class="popup-image"
-                            alt="تصویر ملک"
+                            src="icons/details.svg"
+                            alt=""
+                            class="popup-action-icon"
                         >
-                    `
-                    : `
-                        <div class="popup-no-image">
-                           فاقد تصویر
-                        </div>
-                    `
-                }
+                        <span>جزئیات</span>
+                    </button>
+
+
+                    <button
+                        class="edit-btn"
+                        onclick="editProperty(${property.id})">
+                        <img
+                            src="icons/edit.svg"
+                            alt=""
+                            class="popup-action-icon"
+                        >
+                        <span>ویرایش</span>
+                    </button>
+
+
+                    <button
+                        class="delete-btn"
+                        onclick="deleteProperty(${property.id})">
+                        <img
+                            src="icons/trash.svg"
+                            alt=""
+                            class="popup-action-icon"
+                        >
+                        <span>حذف</span>
+                    </button>
+
+                </div>
+
             </div>
-
-        </div>
-
-        <!-- آدرس -->
-        <div class="popup-address">
-
-            <img
-                src="icons/location.svg"
-                alt=""
-                class="popup-location-icon"
-            >
-
-            <span>${property.address || "آدرس ثبت نشده"}</span>
-
-        </div>
+        `);
 
 
-        <!-- مشخصات ملک -->
-        <div class="popup-specs">
+        // تنظیم موقعیت پاپ‌آپ هنگام باز شدن در موبایل
+        marker.on("popupopen", function () {
+            if (window.innerWidth <= 768) {
+                document.body.classList.add("property-popup-open");
 
-            <div class="popup-spec">
-                <strong>${property.area || "—"}</strong>
-                <span>متر مربع</span>
-            </div>
+                const popupElement = marker.getPopup().getElement();
+                if (!popupElement) return;
 
-            <div class="popup-spec">
-                <strong>${property.rooms || "—"}</strong>
-                <span>اتاق</span>
-            </div>
+                const mapRect = map.getContainer().getBoundingClientRect();
+                const popupRect = popupElement.getBoundingClientRect();
 
-            <div class="popup-spec">
-                <strong>${property.year || "—"}</strong>
-                <span>سال ساخت</span>
-            </div>
+                const dx =
+                    popupRect.left + popupRect.width / 2 -
+                    (mapRect.left + mapRect.width / 2);
 
-        </div>
+                const dy =
+                    popupRect.top + popupRect.height / 2 -
+                    (mapRect.top + mapRect.height / 2);
 
-        <!-- قیمت‌ها -->
-        <div class="popup-price-grid">
-
-            ${
-                property.dealType === "sell"
-                ? `
-                    <div class="popup-price-card">
-                        <span>قیمت فروش</span>
-                        <strong>${formatPrice(property.sellPrice)} تومان</strong>
-                    </div>
-
-                    <div class="popup-price-card">
-                        <span>متری</span>
-                        <strong>${formatPrice(property.pricePerMeter)} تومان</strong>
-                    </div>
-                `
-                : property.dealType === "deposit"
-                ? `
-                    <div class="popup-price-card popup-price-full">
-                        <span>رهن کامل</span>
-                        <strong>${formatPrice(property.depositPrice)} تومان</strong>
-                    </div>
-                `
-                : property.dealType === "rent"
-                ? `
-                    <div class="popup-price-card">
-                        <span>ودیعه</span>
-                        <strong>${formatPrice(property.rentDeposit)} تومان</strong>
-                    </div>
-
-                    <div class="popup-price-card">
-                        <span>کرایه</span>
-                        <strong>${formatPrice(property.rentPrice)} تومان</strong>
-                    </div>
-                `
-                : `
-                    <div class="popup-price-card">
-                        <span>رهن</span>
-                        <strong>${formatPrice(property.depositPrice)} تومان</strong>
-                    </div>
-
-                    <div class="popup-price-card">
-                        <span>اجاره ماهانه</span>
-                        <strong>${formatPrice(property.rentPrice)} تومان</strong>
-                    </div>
-                `
+                map.panBy([dx, dy], { animate: true });
             }
-
-        </div>
-
-       
-<!-- دکمه‌ها -->
-<div class="popup-actions popup-actions-row">
-
-    
-<button
-    class="details-btn"
-    onclick="showPropertyDetails(${property.id})">
-    <img
-        src="icons/details.svg"
-        alt=""
-        class="popup-action-icon"
-    >
-    <span>جزئیات</span>
-</button>
+        });
 
 
-    <button
-        class="edit-btn"
-        onclick="editProperty(${property.id})">
-        <img
-            src="icons/edit.svg"
-            alt=""
-            class="popup-action-icon"
-        >
-        <span>ویرایش</span>
-    </button>
+        // پاک‌کردن وضعیت پاپ‌آپ هنگام بسته شدن
+        marker.on("popupclose", function () {
+            document.body.classList.remove("property-popup-open");
+        });
 
-    <button
-        class="delete-btn"
-        onclick="deleteProperty(${property.id})">
-        <img
-            src="icons/trash.svg"
-            alt=""
-            class="popup-action-icon"
-        >
-        <span>حذف</span>
-    </button>
-
-</div>
-
-</div>
-`);
-
-marker.on("popupopen", function () {
-    if (window.innerWidth <= 768) {
-        document.body.classList.add("property-popup-open");
-
-        const popupElement = marker.getPopup().getElement();
-        if (!popupElement) return;
-
-        const mapRect = map.getContainer().getBoundingClientRect();
-        const popupRect = popupElement.getBoundingClientRect();
-
-        const dx =
-            popupRect.left + popupRect.width / 2 -
-            (mapRect.left + mapRect.width / 2);
-
-        const dy =
-            popupRect.top + popupRect.height / 2 -
-            (mapRect.top + mapRect.height / 2);
-
-        map.panBy([dx, dy], { animate: true });
-    }
-});
-
-marker.on("popupclose", function () {
-    document.body.classList.remove("property-popup-open");
-});
-
-});
+    });
 
 }
-
+// نمایش اولیه املاک روی نقشه
 renderProperties();
 
-const searchInput = document.getElementById("searchInput");
 
+// ======================================================
+// بخش ۰۵ ـ جستجو و فیلتر فایل‌های املاک
+// ======================================================
+
+const searchInput = document.getElementById("searchInput");
+// اجرای جستجو هنگام تایپ کاربر
 searchInput.addEventListener("input", function(){
 
     const q = this.value.trim().toLowerCase();
@@ -489,82 +595,94 @@ searchInput.addEventListener("input", function(){
         return;
     }
 
-   const filtered = properties.filter(property => {
 
-    const searchText = [
+    const filtered = properties.filter(property => {
 
-        property.title,
-        property.propertyType,
-        property.dealType,
-        property.description,
-        property.address
+        const searchText = [
 
-    ]
-    .join(" ")
-    .toLowerCase();
+            property.title,
+            property.propertyType,
+            property.dealType,
+            property.description,
+            property.address
 
-    const query = q.toLowerCase();
+        ]
+        .join(" ")
+        .toLowerCase();
 
-    if(
-        query === "فروش" &&
-        property.dealType === "sell"
-    ){
-        return true;
-    }
 
-    if(
-        query === "رهن" &&
-        property.dealType === "deposit"
-    ){
-        return true;
-    }
+        const query = q.toLowerCase();
 
-    if(
-        query === "رهن و اجاره" &&
-        property.dealType === "rent"
-    ){
-        return true;
-    }
 
-    if(
-        query === "آپارتمان" &&
-        property.propertyType === "apartment"
-    ){
-        return true;
-    }
+        if(
+            query === "فروش" &&
+            property.dealType === "sell"
+        ){
+            return true;
+        }
 
-    if(
-        query === "ویلا" &&
-        property.propertyType === "villa"
-    ){
-        return true;
-    }
 
-    if(
-        query === "زمین" &&
-        property.propertyType === "land"
-    ){
-        return true;
-    }
+        if(
+            query === "رهن" &&
+            property.dealType === "deposit"
+        ){
+            return true;
+        }
 
-    if(
-        query === "مغازه" &&
-        property.propertyType === "shop"
-    ){
-        return true;
-    }
 
-    return searchText.includes(query);
+        if(
+            query === "رهن و اجاره" &&
+            property.dealType === "rent"
+        ){
+            return true;
+        }
+
+
+        if(
+            query === "آپارتمان" &&
+            property.propertyType === "apartment"
+        ){
+            return true;
+        }
+
+
+        if(
+            query === "ویلا" &&
+            property.propertyType === "villa"
+        ){
+            return true;
+        }
+
+
+        if(
+            query === "زمین" &&
+            property.propertyType === "land"
+        ){
+            return true;
+        }
+
+
+        if(
+            query === "مغازه" &&
+            property.propertyType === "shop"
+        ){
+            return true;
+        }
+
+
+        return searchText.includes(query);
+
+    });
+
+
+    renderProperties(filtered);
 
 });
 
-renderProperties(filtered);
 
-});
-
-// =========================
-// PANEL
-// =========================
+// ==================================================
+// بخش ـ دریافت عناصر HTML پنل ثبت ملک و پنجره جزئیات
+// ==================================================
 
 const propertyPanel =
     document.getElementById("propertyPanel");
@@ -602,8 +720,6 @@ const closeModal =
 
 const overlay =
     document.getElementById("overlay");
-
-
 
 
 // =========================
@@ -737,7 +853,7 @@ function closeForm() {
 
     document.getElementById("balcony").checked = false;
 
-    
+
     // قیمت ها
 
     document.getElementById("sellPrice").value = "";
@@ -905,7 +1021,6 @@ closeBtn.addEventListener(
     "click",
     closeForm
 );
-
 closeModal.addEventListener(
     "click",
     function(){
@@ -914,7 +1029,6 @@ closeModal.addEventListener(
 
     }
 );
-
 prevBtn.addEventListener(
     "click",
     function(){
@@ -929,7 +1043,6 @@ prevBtn.addEventListener(
 
     }
 );
-
 nextBtn.addEventListener(
     "click",
     function(){
@@ -949,6 +1062,9 @@ nextBtn.addEventListener(
     }
 );
 
+
+
+
 showStep(1);
 
 // کلیک روی نقشه
@@ -958,22 +1074,20 @@ let selectingPropertyLocation = false;
 map.on("click", function (e) {
 
     if (selectingAgencyLocation) {
+    agencyLat = e.latlng.lat;
+    agencyLng = e.latlng.lng;
 
-        agencyLat = e.latlng.lat;
-        agencyLng = e.latlng.lng;
+    selectingAgencyLocation = false;
+    map.getContainer().classList.remove("location-mode");
+    map.getContainer().style.cursor = "";
 
-        selectingAgencyLocation = false;
+    agencySetup.style.display = "flex";
 
-        agencySetup.style.display = "flex";
+    selectLocationBtn.classList.add("location-selected");
+    selectLocationBtn.innerHTML = `موقعیت ثبت شد ✓`;
 
-        selectLocationBtn.classList.add("location-selected");
-
-        selectLocationBtn.innerHTML = `
-            موقعیت ثبت شد ✓
-        `;
-
-        return;
-    }
+    return;
+}
 
     // اگر پنل جزئیات باز است
     if (
@@ -1026,32 +1140,10 @@ const officeControlBtn =
 document.getElementById("officeControlBtn");
 
 officeControlBtn.addEventListener("click", () => {
-
-    const agencies =
-    JSON.parse(
-        localStorage.getItem("agencies")
-    ) || [];
-
-    const mainAgency =
-    agencies.find(
-        agency => agency.type === "main"
-    );
-
-    if(!mainAgency) return;
-
-    map.flyTo(
-        [mainAgency.lat, mainAgency.lng],
-        15,
-        {
-            duration:1.2
-        }
-    );
-
+    zoomToMyOffice();
 });
 
-
 // مراحل فرم
-
 
 let selectedImage = "";
 
@@ -1310,7 +1402,7 @@ property.fileDate || "";
     document.getElementById("balcony").checked =
     property.balcony || false;
 
-    
+
 
    // قیمت‌ها
 
@@ -1387,6 +1479,7 @@ agencyBtn.addEventListener("click", () => {
     overlay.style.display = "block";
 
 });
+
 /* =====================================
    عناصر فرم بنگاه
 ===================================== */
@@ -1413,7 +1506,6 @@ logoUploadBtn.addEventListener("click", (e) => {
     agencyLogoInput.click();
 
 });
-
 
 /* =====================================
    انتخاب لوگو
@@ -1469,7 +1561,6 @@ removeLogoBtn.addEventListener(
     "none";
 
 });
-
 
 /* =====================================
    انتخاب موقعیت روی نقشه
@@ -1539,6 +1630,121 @@ cancelAgencyBtn.addEventListener("click", () => {
 });
 
 /* =====================================
+   تابع ریست فرم ثبت دفتر
+===================================== */
+
+function resetAgencyForm() {
+    document.getElementById("agencyNameInput").value = "";
+    document.getElementById("agencyManagerInput").value = "";
+    document.getElementById("agencyPhoneInput").value = "";
+    document.getElementById("agencyAddressInput").value = "";
+    document.getElementById("agencyLogoInput").value = "";
+    document.getElementById("agencyType").selectedIndex = 0;
+
+    agencyLat = null;
+    agencyLng = null;
+    editingAgencyId = null;
+
+    logoPreview.src = "";
+    logoPreview.style.display = "none";
+    logoText.style.display = "block";
+    removeLogoBtn.style.display = "none";
+
+    selectLocationBtn.innerHTML = `<span>انتخاب موقعیت</span>`;
+    selectLocationBtn.classList.remove("location-selected");
+
+    selectingAgencyLocation = false;
+    map.getContainer().classList.remove("location-mode");
+    map.getContainer().style.cursor = "";
+}
+
+/* =====================================
+   اتصال حساب مدیر به دفتر ثبت‌شده
+===================================== */
+
+function getCurrentUser() {
+    return JSON.parse(
+        localStorage.getItem("currentUser") || "null"
+    );
+}
+
+/* =====================================
+   رفتن به موقعیت دفتر خود مدیر
+===================================== */
+
+function zoomToMyOffice(animate = true) {
+    const currentUser = getCurrentUser();
+
+    if (!currentUser?.agencyId) {
+        return;
+    }
+
+    const agencies =
+        JSON.parse(localStorage.getItem("agencies")) || [];
+
+    const myOffice = agencies.find(
+        agency =>
+            agency.id === currentUser.agencyId &&
+            agency.type === "main"
+    );
+
+    if (!myOffice) {
+        return;
+    }
+
+    const lat = Number(myOffice.lat);
+    const lng = Number(myOffice.lng);
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        return;
+    }
+
+    if (animate) {
+        map.flyTo([lat, lng], 15, {
+            duration: 1.2
+        });
+    } else {
+        map.setView([lat, lng], 15, {
+            animate: false
+        });
+    }
+}
+
+function linkCurrentAdminToAgency(agencyId) {
+    const currentUser = getCurrentUser();
+
+    if (
+        !currentUser ||
+        currentUser.role !== "admin" ||
+        currentUser.agencyId
+    ) {
+        return;
+    }
+
+    currentUser.agencyId = agencyId;
+
+    localStorage.setItem(
+        "currentUser",
+        JSON.stringify(currentUser)
+    );
+
+    const users =
+        JSON.parse(localStorage.getItem("users")) || [];
+
+    const userIndex =
+        users.findIndex(user => user.id === currentUser.id);
+
+    if (userIndex !== -1) {
+        users[userIndex].agencyId = agencyId;
+
+        localStorage.setItem(
+            "users",
+            JSON.stringify(users)
+        );
+    }
+}
+
+/* =====================================
    دکمه ثبت بنگاه
 ===================================== */
 
@@ -1551,6 +1757,11 @@ saveAgencyBtn.addEventListener("click", () => {
     JSON.parse(
         localStorage.getItem("agencies")
     ) || [];
+
+    if (agencyLat === null || agencyLng === null) {
+    alert("ابتدا موقعیت دفتر را روی نقشه انتخاب کنید.");
+    return;
+}
 
     const saveAgency = (logoData = "") => {
 
@@ -1605,30 +1816,6 @@ saveAgencyBtn.addEventListener("click", () => {
 
         }else{
 
-            if(agency.type === "main"){
-
-                const mainIndex =
-                agencies.findIndex(
-                    a => a.type === "main"
-                );
-
-                if(mainIndex !== -1){
-
-                    const replaceMain =
-                    confirm(
-                        "دفتر اصلی قبلاً ثبت شده است. جایگزین شود؟"
-                    );
-
-                    if(!replaceMain) return;
-
-                    agencies.splice(
-                        mainIndex,
-                        1
-                    );
-
-                }
-
-            }
 
             agencies.push(agency);
 
@@ -1639,10 +1826,14 @@ saveAgencyBtn.addEventListener("click", () => {
             JSON.stringify(agencies)
         );
 
+        linkCurrentAdminToAgency(agency.id);
+
         agencySetup.style.display =
         "none";
 
+        resetAgencyForm();
         loadAgencies();
+        zoomToMyOffice();
 
     };
 
@@ -1677,27 +1868,50 @@ saveAgencyBtn.addEventListener("click", () => {
 
 function loadAgencies(){
 
-    const agencies =
+    const currentUser = getCurrentUser();
+
+    const allAgencies =
     JSON.parse(
         localStorage.getItem("agencies")
     ) || [];
 
-    if(agencies.length === 0) return;
+    // فقط دفتر مربوط به حساب واردشده
+    const agencies =
+    allAgencies.filter(
+        agency => agency.id === currentUser?.agencyId
+    );
 
+    // پاک‌کردن Markerهای حساب قبلی
     agencyMarkers.forEach(marker => {
         map.removeLayer(marker);
     });
 
     agencyMarkers = [];
 
+    if(agencies.length === 0) return;
+
     const mainAgency =
     agencies.find(
         a => a.type === "main"
     );
 
-    
+
 
     agencies.forEach(agency => {
+
+        if (
+    agency.lat === null ||
+    agency.lat === undefined ||
+    agency.lng === null ||
+    agency.lng === undefined
+) {
+    console.warn(
+        "دفتر بدون موقعیت روی نقشه نمایش داده نشد:",
+        agency
+    );
+
+    return;
+}
 
         const agencyIcon = L.divIcon({
 
@@ -1717,7 +1931,7 @@ function loadAgencies(){
 
             ${
                 agency.type === "main"
-                ? "دفتر"
+                ? "دفتر من"
                 : agency.type === "branch"
                 ? "شعبه"
                 : "همکار"
@@ -1746,7 +1960,7 @@ function loadAgencies(){
             agencyMarker
         );
 
-        
+
 agencyMarker.bindPopup(`
     <div class="agency-popup">
 
@@ -1780,7 +1994,7 @@ agencyMarker.bindPopup(`
 
         </div>
 
-        
+
 <div class="agency-popup-manager">
     <img src="icons/user.svg" alt="">
     <span><strong>مدیریت:</strong> ${agency.manager || "-"}</span>
@@ -1818,7 +2032,7 @@ agencyMarker.bindPopup(`
 });
 
 
-        
+
 agencyMarker.on("popupopen", function () {
 
     // مخفی کردن دکمه‌های شناور در موبایل
@@ -1840,7 +2054,7 @@ agencyMarker.on("popupopen", function () {
 
             const dx =
                 popupRect.left + popupRect.width / 2 -
-                (mapRect.left + mapRect.width / 2);
+                                (mapRect.left + mapRect.width / 2);
 
             const dy =
                 popupRect.top + popupRect.height / 2 -
@@ -1868,7 +2082,7 @@ agencyMarker.on("popupopen", function () {
         if (deleteBtn) {
             deleteBtn.onclick = () => {
 
-                if (confirm("بنگاه حذف شود؟")) {
+                if (confirm("دفتر حذف شود؟")) {
 
                     let agencies =
                         JSON.parse(
@@ -2141,9 +2355,137 @@ function previewImages(event) {
     input.value = "";
 }
 
+function resetPropertyForm() {
+    [
+        "fileCode",
+        "fileDate",
+        "title",
+        "sellPrice",
+        "pricePerMeter",
+        "depositPrice",
+        "rentDeposit",
+        "rentPrice",
+        "area",
+        "rooms",
+        "year",
+        "floor",
+        "totalFloors",
+        "totalUnits",
+        "unitNumber",
+        "owner",
+        "phone",
+        "tenant",
+        "tenantPhone",
+        "address",
+        "description"
+    ].forEach(id => {
+        document.getElementById(id).value = "";
+    });
+
+    document.getElementById("propertyType").selectedIndex = 0;
+    document.getElementById("dealType").selectedIndex = 0;
+
+    [
+        "parking",
+        "storage",
+        "elevator",
+        "balcony",
+        "hood",
+        "stove",
+        "sink"
+    ].forEach(id => {
+        document.getElementById(id).checked = false;
+    });
+
+    document.querySelectorAll(`
+        input[name="facade"],
+        input[name="cabinet"],
+        input[name="ceiling"],
+        input[name="floorType"],
+        input[name="cooling"],
+        input[name="heating"],
+        input[name="window"],
+        input[name="service"]
+    `).forEach(input => {
+        input.checked = false;
+    });
+
+    selectedLat = null;
+    selectedLng = null;
+    selectedImages = [];
+    selectedImageIndex = 0;
+    editingId = null;
+
+    if (tempMarker) {
+        map.removeLayer(tempMarker);
+        tempMarker = null;
+    }
+
+    map.getContainer().classList.remove("location-mode");
+    map.getContainer().style.cursor = "";
+
+    document.getElementById("images").value = "";
+
+    document.getElementById("imagePreview").innerHTML = `
+        <div
+            class="upload-box"
+            onclick="document.getElementById('images').click()">
+
+            <div class="upload-plus">+</div>
+            <div>افزودن تصویر</div>
+
+        </div>
+    `;
+
+    currentStep = 1;
+    showStep(currentStep);
+    changeDealType();
+}
+
+/* =====================================
+   ریست فرم ثبت دفتر
+===================================== */
+
+function resetAgencyForm() {
+    document.getElementById("agencyNameInput").value = "";
+    document.getElementById("agencyManagerInput").value = "";
+    document.getElementById("agencyPhoneInput").value = "";
+    document.getElementById("agencyAddressInput").value = "";
+    document.getElementById("agencyLogoInput").value = "";
+
+    document.getElementById("agencyType").selectedIndex = 0;
+
+    agencyLat = null;
+    agencyLng = null;
+    editingAgencyId = null;
+    selectingAgencyLocation = false;
+
+    map.getContainer().classList.remove("location-mode");
+    map.getContainer().style.cursor = "";
+
+    logoPreview.src = "";
+    logoPreview.style.display = "none";
+
+    logoText.style.display = "block";
+    removeLogoBtn.style.display = "none";
+
+    selectLocationBtn.innerHTML = `
+        <span>انتخاب موقعیت</span>
+    `;
+
+    selectLocationBtn.classList.remove("location-selected");
+}
+
 function saveProperty(){
 
-        const fileCodeInput =
+        const currentUser = getCurrentUser();
+
+    if (!currentUser?.agencyId) {
+        alert("ابتدا باید دفتر خود را ثبت کنید.");
+        return;
+    }
+
+    const fileCodeInput =
     document.getElementById("fileCode");
 
     let fileCode =
@@ -2167,6 +2509,8 @@ function saveProperty(){
     const property = {
 
         id: editingId || Date.now(),
+
+        agencyId: currentUser.agencyId,
 
         fileCode:
         document.getElementById("fileCode").value.trim(),
@@ -2247,7 +2591,7 @@ function saveProperty(){
         serviceType:
         document.querySelector('input[name="service"]:checked')?.value || "",
 
-        
+
 
         owner:
         document.getElementById("owner").value,
@@ -2300,24 +2644,9 @@ function saveProperty(){
 
     renderProperties();
 
-    selectedImages = [];
-
-    document.getElementById("images").value = "";
-
-    document.getElementById("imagePreview").innerHTML = `
-        <div
-            class="upload-box"
-            onclick="document.getElementById('images').click()">
-
-            <div class="upload-plus">+</div>
-
-            <div>افزودن تصویر</div>
-
-        </div>
-    `;
+    resetPropertyForm();
 
     closeForm();
-
 }
 
 let currentDetailsImageIndex = 0;
@@ -2444,63 +2773,10 @@ function showPropertyDetails(id) {
     const fileDate =
         String(property.fileDate || "").trim() || "—";
 
-    const formatPrice = (value) => {
 
-        const raw =
-        String(value ?? "").trim();
-
-        if (!raw) return "—";
-
-        const number =
-        Number(raw.replace(/[٬,\s]/g, ""));
-
-        return Number.isFinite(number)
-            ? number.toLocaleString("fa-IR")
-            : raw;
-
-    };
-
-    const priceWithUnit = (value) => {
-
-        const price = formatPrice(value);
-
-        return price === "—"
-            ? "—"
-            : `${price} <small class="price-currency">تومان</small>`;
-
-    };
-
-    const toPersianDigits = (value) => {
-
-    return String(value)
-        .replace(/,/g, "٬")
-        .replace(/[0-9]/g, digit =>
-            "۰۱۲۳۴۵۶۷۸۹"[digit]
-        );
-
-};
-
-    const withUnit = (value, unit) => {
-
-    const text =
-    String(value ?? "").trim();
-
-    return text
-        ? `${toPersianDigits(text)} ${unit}`
-        : "—";
-
-};
-
-    const valueOrDash = (value) => {
-
-    const text =
-    String(value ?? "").trim();
-
-    return text
-        ? toPersianDigits(text)
-        : "—";
-
-};
+    // =========================
+    // بخش قیمت‌ها
+    // =========================
 
     let priceSection = "";
 
@@ -2587,6 +2863,11 @@ function showPropertyDetails(id) {
 
     }
 
+
+    // =========================
+    // اطلاعات اصلی ملک
+    // =========================
+
     const propertyInfoSection = `
 
         <div class="details-info-row">
@@ -2605,7 +2886,7 @@ function showPropertyDetails(id) {
                     <div class="details-basic-item">
                         <span>سال ساخت</span>
                         <strong>
-                            ${valueOrDash(property.year)}
+                            ${property.year ? toPersianDigits(toEnglishDigits(property.year)) : "—"}
                         </strong>
                     </div>
 
@@ -2660,207 +2941,246 @@ function showPropertyDetails(id) {
 
     `;
 
+
+    // =========================
+    // امکانات ملک
+    // =========================
+
     const amenitiesSection = `
 
-    <section class="details-amenities-section">
+        <section class="details-amenities-section">
 
-        <div class="details-amenities-grid">
+            <div class="details-amenities-grid">
 
-            <div class="details-amenity">
-                <span>پارکینگ</span>
-                <b class="details-amenity-status
-                    ${property.parking ? "is-available" : "is-unavailable"}">
-                    ${property.parking ? "✓" : "×"}
-                </b>
+                <div class="details-amenity">
+                    <span>پارکینگ</span>
+                    <b class="details-amenity-status
+                        ${property.parking ? "is-available" : "is-unavailable"}">
+                        ${property.parking ? "✓" : "×"}
+                    </b>
+                </div>
+
+                <div class="details-amenity">
+                    <span>انباری</span>
+                    <b class="details-amenity-status
+                        ${property.storage ? "is-available" : "is-unavailable"}">
+                        ${property.storage ? "✓" : "×"}
+                    </b>
+                </div>
+
+                <div class="details-amenity">
+                    <span>آسانسور</span>
+                    <b class="details-amenity-status
+                        ${property.elevator ? "is-available" : "is-unavailable"}">
+                        ${property.elevator ? "✓" : "×"}
+                    </b>
+                </div>
+
+                <div class="details-amenity">
+                    <span>بالکن</span>
+                    <b class="details-amenity-status
+                        ${property.balcony ? "is-available" : "is-unavailable"}">
+                        ${property.balcony ? "✓" : "×"}
+                    </b>
+                </div>
+
+                <div class="details-amenity">
+                    <span>هود</span>
+                    <b class="details-amenity-status
+                        ${property.hood ? "is-available" : "is-unavailable"}">
+                        ${property.hood ? "✓" : "×"}
+                    </b>
+                </div>
+
+                <div class="details-amenity">
+                    <span>گاز رومیزی</span>
+                    <b class="details-amenity-status
+                        ${property.stove ? "is-available" : "is-unavailable"}">
+                        ${property.stove ? "✓" : "×"}
+                    </b>
+                </div>
+
+                <div class="details-amenity">
+                    <span>سینک</span>
+                    <b class="details-amenity-status
+                        ${property.sink ? "is-available" : "is-unavailable"}">
+                        ${property.sink ? "✓" : "×"}
+                    </b>
+                </div>
+
             </div>
 
-            <div class="details-amenity">
-                <span>انباری</span>
-                <b class="details-amenity-status
-                    ${property.storage ? "is-available" : "is-unavailable"}">
-                    ${property.storage ? "✓" : "×"}
-                </b>
-            </div>
-
-            <div class="details-amenity">
-                <span>آسانسور</span>
-                <b class="details-amenity-status
-                    ${property.elevator ? "is-available" : "is-unavailable"}">
-                    ${property.elevator ? "✓" : "×"}
-                </b>
-            </div>
-
-            <div class="details-amenity">
-                <span>بالکن</span>
-                <b class="details-amenity-status
-                    ${property.balcony ? "is-available" : "is-unavailable"}">
-                    ${property.balcony ? "✓" : "×"}
-                </b>
-            </div>
-
-            <div class="details-amenity">
-                <span>هود</span>
-                <b class="details-amenity-status
-                    ${property.hood ? "is-available" : "is-unavailable"}">
-                    ${property.hood ? "✓" : "×"}
-                </b>
-            </div>
-
-            <div class="details-amenity">
-                <span>گاز رومیزی</span>
-                <b class="details-amenity-status
-                    ${property.stove ? "is-available" : "is-unavailable"}">
-                    ${property.stove ? "✓" : "×"}
-                </b>
-            </div>
-
-            <div class="details-amenity">
-                <span>سینک</span>
-                <b class="details-amenity-status
-                    ${property.sink ? "is-available" : "is-unavailable"}">
-                    ${property.sink ? "✓" : "×"}
-                </b>
-            </div>
-
-        </div>
-
-    </section>
+        </section>
 
     `;
+
+
+    // =========================
+    // مشخصات فنی
+    // =========================
 
     const technicalSection = `
 
-    <section class="details-technical-section">
+        <section class="details-technical-section">
 
-        <div class="details-technical-grid">
+            <div class="details-technical-grid">
 
-            <div class="details-technical-item">
-                <span>نما</span>
-                <strong>
-                    ${valueOrDash(property.facade)}
-                </strong>
+                <div class="details-technical-item">
+                    <span>نما</span>
+                    <strong>
+                        ${valueOrDash(property.facade)}
+                    </strong>
+                </div>
+
+                <div class="details-technical-item">
+                    <span>کابینت</span>
+                    <strong>
+                        ${valueOrDash(property.cabinet)}
+                    </strong>
+                </div>
+
+                <div class="details-technical-item">
+                    <span>سقف</span>
+                    <strong>
+                        ${valueOrDash(property.ceiling)}
+                    </strong>
+                </div>
+
+                <div class="details-technical-item">
+                    <span>کف</span>
+                    <strong>
+                        ${valueOrDash(property.floorType)}
+                    </strong>
+                </div>
+
+                <div class="details-technical-item">
+                    <span>سرمایش</span>
+                    <strong>
+                        ${valueOrDash(property.cooling)}
+                    </strong>
+                </div>
+
+                <div class="details-technical-item">
+                    <span>گرمایش</span>
+                    <strong>
+                        ${valueOrDash(property.heating)}
+                    </strong>
+                </div>
+
+                <div class="details-technical-item">
+                    <span>پنجره</span>
+                    <strong>
+                        ${valueOrDash(property.windowType)}
+                    </strong>
+                </div>
+
+                <div class="details-technical-item">
+                    <span>سرویس</span>
+                    <strong>
+                        ${valueOrDash(property.serviceType)}
+                    </strong>
+                </div>
+
             </div>
 
-            <div class="details-technical-item">
-                <span>کابینت</span>
-                <strong>
-                    ${valueOrDash(property.cabinet)}
-                </strong>
-            </div>
+        </section>
 
-            <div class="details-technical-item">
-                <span>سقف</span>
-                <strong>
-                    ${valueOrDash(property.ceiling)}
-                </strong>
-            </div>
-
-            <div class="details-technical-item">
-                <span>کف</span>
-                <strong>
-                    ${valueOrDash(property.floorType)}
-                </strong>
-            </div>
-
-            <div class="details-technical-item">
-                <span>سرمایش</span>
-                <strong>
-                    ${valueOrDash(property.cooling)}
-                </strong>
-            </div>
-
-            <div class="details-technical-item">
-                <span>گرمایش</span>
-                <strong>
-                    ${valueOrDash(property.heating)}
-                </strong>
-            </div>
-
-            <div class="details-technical-item">
-                <span>پنجره</span>
-                <strong>
-                    ${valueOrDash(property.windowType)}
-                </strong>
-            </div>
-
-            <div class="details-technical-item">
-                <span>سرویس</span>
-                <strong>
-                    ${valueOrDash(property.serviceType)}
-                </strong>
-            </div>
-
-        </div>
-
-    </section>
-
-`;
-
-const owner = String(property.owner || "").trim();
-const ownerPhone = String(property.phone || "").trim();
-    const tenant = String(property.tenant || "").trim();
-const tenantPhone = String(property.tenantPhone || "").trim();
-
-const createPersonCard = (title, name, phone) => {
-    const isActive = Boolean(name || phone);
-
-    return `
-        <div class="details-person-card ${isActive ? "is-active" : "is-empty"}">
-
-            <div class="details-person-heading">
-                <span class="details-person-title">${title}</span>
-            </div>
-
-            <div class="details-person-row ${name ? "is-filled" : "is-blank"}">
-                <img src="icons/user.svg" class="details-person-icon" alt="">
-                <span>${name || "نام ثبت نشده"}</span>
-            </div>
-
-            <div class="details-person-row ${phone ? "is-filled" : "is-blank"}">
-                <img src="icons/phone.svg" class="details-person-icon" alt="">
-                <span>${phone || "شماره ثبت نشده"}</span>
-            </div>
-
-        </div>
     `;
-};
+
+
+    // =========================
+    // اطلاعات مالک و مستأجر
+    // =========================
+
+    const owner = String(property.owner || "").trim();
+    const ownerPhone = String(property.phone || "").trim();
+
+    const tenant = String(property.tenant || "").trim();
+    const tenantPhone = String(property.tenantPhone || "").trim();
+
+    const createPersonCard = (title, name, phone) => {
+
+        const isActive = Boolean(name || phone);
+
+        return `
+            <div class="details-person-card ${isActive ? "is-active" : "is-empty"}">
+
+                <div class="details-person-heading">
+                    <span class="details-person-title">${title}</span>
+                </div>
+
+                <div class="details-person-row ${name ? "is-filled" : "is-blank"}">
+                    <img src="icons/user.svg" class="details-person-icon" alt="">
+                    <span>${name || "نام ثبت نشده"}</span>
+                </div>
+
+                <div class="details-person-row ${phone ? "is-filled" : "is-blank"}">
+                    <img src="icons/phone.svg" class="details-person-icon" alt="">
+                    <span>${phone || "شماره ثبت نشده"}</span>
+                </div>
+
+            </div>
+        `;
+    };
+
     const peopleSection = `
-    <section class="details-people-section">
-        ${createPersonCard("مالک", owner, ownerPhone)}
-        ${createPersonCard("مستأجر", tenant, tenantPhone)}
-    </section>
-`;
 
-const description = String(property.description || "").trim();
-const safeDescription = description
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;")
-    .replace(/\n/g, "<br>");
+        <section class="details-people-section">
 
-const descriptionSection = `
-    <section class="details-description-section">
+            ${createPersonCard("مالک", owner, ownerPhone)}
 
-        <div class="details-description-title">
-            توضیحات: 
-        </div>
+            ${createPersonCard("مستأجر", tenant, tenantPhone)}
 
-        <div class="details-description-content">
-            ${safeDescription || "توضیحاتی ثبت نشده است"}
-        </div>
+        </section>
 
-    </section>
-`;
+    `;
 
 
+    // =========================
+    // توضیحات ملک
+    // =========================
+
+    const description = String(property.description || "").trim();
+
+    const safeDescription = description
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;")
+        .replace(/\n/g, "<br>");
+
+    const descriptionSection = `
+
+        <section class="details-description-section">
+
+            <div class="details-description-title">
+                توضیحات:
+            </div>
+
+            <div class="details-description-content">
+                ${safeDescription || "توضیحاتی ثبت نشده است"}
+            </div>
+
+        </section>
+
+    `;
+
+
+    // =========================
+    // تصاویر ملک
+    // =========================
 
     galleryImages = Array.isArray(property.images)
         ? property.images
         : [];
 
     currentDetailsImageIndex = 0;
+
+
+    // =========================
+    // ساخت پنل جزئیات
+    // =========================
 
     detailsBody.innerHTML = `
 
@@ -2870,29 +3190,37 @@ const descriptionSection = `
 
         </div>
 
-       <section class="details-file-head">
+        <section class="details-file-head">
 
             <div class="details-file-heading">
- 
+
                 <h2 class="details-file-title">
-                ${headerTitle || "بدون عنوان"}
+                    ${headerTitle || "بدون عنوان"}
                 </h2>
 
-            <div class="details-file-address">
-                 <img src="icons/location.svg"
-                 class="details-address-icon"
-                 alt="">
-                 <span>${propertyAddress}</span>
-             </div>
+                <div class="details-file-address">
+
+                    <img
+                        src="icons/location.svg"
+                        class="details-address-icon"
+                        alt=""
+                    >
+
+                    <span>${propertyAddress}</span>
+
+                </div>
 
             </div>
 
-             <div class="details-file-meta">
-                 <span>کد: <strong>${fileCode}</strong></span>
-                 <span>تاریخ: <strong>${fileDate}</strong></span>
-             </div>
+            <div class="details-file-meta">
 
-       </section>
+                <span>کد: <strong>${fileCode}</strong></span>
+
+                <span>تاریخ: <strong>${fileDate}</strong></span>
+
+            </div>
+
+        </section>
 
         ${priceSection}
 
@@ -2910,11 +3238,13 @@ const descriptionSection = `
 
     `;
 
+
     renderDetailsImage();
 
     document.getElementById(
         "detailsPanel"
     ).classList.add("open");
+
 }
 
 function closeDetails(){
@@ -3078,10 +3408,9 @@ function applyFilters(){
     const balcony =
     document.getElementById("balconyFilter").checked;
 
-    
 
-    
-    
+
+
     const sell =
     document.getElementById("sellFilter").checked;
 
@@ -3250,7 +3579,7 @@ function renderSavedProperties() {
         return;
     }
 
-    
+
 
 properties.forEach(property => {
     const card = document.createElement("div");
@@ -3726,7 +4055,7 @@ function replayConsultantsAnimation() {
             easing: "ease",
             fill: "none"
         }
-    );
+            );
 }
 // نمایش صفحه اصلی پنل
 function showConsultantsHome() {
@@ -4174,4 +4503,675 @@ document.addEventListener("keydown", event => {
     ) {
         consultantsPanel.classList.remove("active");
     }
+});
+
+
+
+
+
+const entryRoleScreen =
+    document.getElementById("roleEntryScreen");
+
+const entryAdminScreen =
+    document.getElementById("adminAccessScreen");
+
+document.getElementById("adminEntryBtn")
+.addEventListener("click", () => {
+    entryRoleScreen.classList.add("is-hidden");
+    entryAdminScreen.classList.remove("is-hidden");
+});
+
+document.getElementById("backToRolesBtn")
+.addEventListener("click", () => {
+    entryAdminScreen.classList.add("is-hidden");
+    entryRoleScreen.classList.remove("is-hidden");
+});
+
+
+
+
+
+const adminRegisterScreen =
+    document.getElementById("adminRegisterScreen");
+
+const adminRegisterForm =
+    document.getElementById("adminRegisterForm");
+
+const adminRegisterError =
+    document.getElementById("adminRegisterError");
+
+document.getElementById("createAdminAccountBtn")
+.addEventListener("click", () => {
+    entryAdminScreen.classList.add("is-hidden");
+    adminRegisterScreen.classList.remove("is-hidden");
+});
+
+document.getElementById("backToAdminAccessBtn")
+.addEventListener("click", () => {
+    adminRegisterScreen.classList.add("is-hidden");
+    entryAdminScreen.classList.remove("is-hidden");
+});
+
+adminRegisterForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const username =
+        document.getElementById("adminRegisterUsername")
+        .value
+        .trim();
+
+    const password =
+        document.getElementById("adminRegisterPassword")
+        .value;
+
+    const passwordConfirm =
+        document.getElementById("adminRegisterPasswordConfirm")
+        .value;
+
+    adminRegisterError.textContent = "";
+
+    if (username.length < 3) {
+        adminRegisterError.textContent =
+            "نام کاربری باید حداقل ۳ کاراکتر داشته باشد.";
+        return;
+    }
+
+    if (password.length < 6) {
+        adminRegisterError.textContent =
+            "رمز عبور باید حداقل ۶ کاراکتر داشته باشد.";
+        return;
+    }
+
+    if (password !== passwordConfirm) {
+        adminRegisterError.textContent =
+            "تکرار رمز عبور با رمز عبور یکسان نیست.";
+        return;
+    }
+
+    const users =
+        JSON.parse(localStorage.getItem("users")) || [];
+
+    const usernameExists = users.some(user =>
+        user.username.toLowerCase() === username.toLowerCase()
+    );
+
+    if (usernameExists) {
+        adminRegisterError.textContent =
+            "این نام کاربری قبلاً استفاده شده است.";
+        return;
+    }
+
+    const newAdmin = {
+        id: Date.now(),
+        username: username,
+        password: password,
+        role: "admin",
+        agencyId: null,
+        active: true
+    };
+
+    users.push(newAdmin);
+
+    localStorage.setItem(
+        "users",
+        JSON.stringify(users)
+    );
+
+    localStorage.setItem(
+        "currentUser",
+        JSON.stringify({
+            id: newAdmin.id,
+            username: newAdmin.username,
+            role: newAdmin.role,
+            agencyId: null
+        })
+    );
+
+    adminRegisterForm.reset();
+
+    adminRegisterScreen.classList.add("is-hidden");
+
+    if (typeof resetAgencyForm === "function") {
+        resetAgencyForm();
+    }
+
+    resetAgencyForm();
+
+    editingAgencyId = null;
+
+    document.getElementById("agencySetup").style.display = "flex";
+    document.getElementById("overlay").style.display = "block";
+});
+
+
+/* =====================================
+   بررسی ورود قبلی مدیر و هدایت به دفتر
+===================================== */
+
+function restoreAdminSession() {
+    const currentUser = getCurrentUser();
+
+    if (!currentUser || currentUser.role !== "admin") {
+        return;
+    }
+
+    entryRoleScreen.classList.add("is-hidden");
+    entryAdminScreen.classList.add("is-hidden");
+    adminRegisterScreen.classList.add("is-hidden");
+
+    const agencies =
+        JSON.parse(localStorage.getItem("agencies")) || [];
+
+    const hasRegisteredAgency =
+        currentUser.agencyId &&
+        agencies.some(
+            agency => agency.id === currentUser.agencyId
+        );
+
+    if (!hasRegisteredAgency) {
+        document.getElementById("agencySetup").style.display = "flex";
+        document.getElementById("overlay").style.display = "block";
+    }
+
+    if (hasRegisteredAgency) {
+      zoomToMyOffice(false);
+    }
+}
+
+restoreAdminSession();
+
+
+/* =====================================
+   خروج از حساب کاربری
+===================================== */
+
+const logoutBtn =
+document.getElementById("logoutBtn");
+
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+
+        const shouldLogout =
+        confirm("آیا مطمئن هستید که می‌خواهید خارج شوید؟");
+
+        if (!shouldLogout) {
+            return;
+        }
+
+        // فقط نشست ورود پاک می‌شود؛
+        // دفترها، فایل‌ها و حساب‌ها باقی می‌مانند.
+        localStorage.removeItem("currentUser");
+
+        resetAgencyForm();
+        resetPropertyForm();
+
+        // Markerها و فایل‌های حساب قبلی از نقشه پاک می‌شوند.
+        loadAgencies();
+        renderProperties();
+
+        const agencySetupPanel =
+        document.getElementById("agencySetup");
+
+        const pageOverlay =
+        document.getElementById("overlay");
+
+        if (agencySetupPanel) {
+            agencySetupPanel.style.display = "none";
+        }
+
+        if (pageOverlay) {
+            pageOverlay.style.display = "none";
+        }
+
+        // بازگشت به صفحهٔ اول ورود
+        entryAdminScreen.classList.add("is-hidden");
+        adminRegisterScreen.classList.add("is-hidden");
+        entryRoleScreen.classList.remove("is-hidden");
+    });
+}
+
+/* =====================================
+   ورود به پنل مدیریت
+===================================== */
+
+const adminLoginScreen =
+document.getElementById("adminLoginScreen");
+
+const adminLoginForm =
+document.getElementById("adminLoginForm");
+
+const adminLoginError =
+document.getElementById("adminLoginError");
+
+document.getElementById("adminLoginBtn")
+.addEventListener("click", () => {
+    entryAdminScreen.classList.add("is-hidden");
+    adminLoginScreen.classList.remove("is-hidden");
+});
+
+document.getElementById("backFromAdminLoginBtn")
+.addEventListener("click", () => {
+    adminLoginScreen.classList.add("is-hidden");
+    entryAdminScreen.classList.remove("is-hidden");
+});
+
+adminLoginForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const username =
+    document.getElementById("adminLoginUsername")
+    .value
+    .trim();
+
+    const password =
+    document.getElementById("adminLoginPassword")
+    .value;
+
+    adminLoginError.textContent = "";
+
+    const users =
+    JSON.parse(localStorage.getItem("users")) || [];
+
+    const adminUser =
+    users.find(user =>
+        user.role === "admin" &&
+        user.active !== false &&
+        user.username.toLowerCase() === username.toLowerCase() &&
+        user.password === password
+    );
+
+    if (!adminUser) {
+        adminLoginError.textContent =
+        "نام کاربری یا رمز عبور درست نیست.";
+
+        return;
+    }
+
+    localStorage.setItem(
+        "currentUser",
+        JSON.stringify({
+            id: adminUser.id,
+            username: adminUser.username,
+            role: adminUser.role,
+            agencyId: adminUser.agencyId
+        })
+    );
+
+    adminLoginForm.reset();
+
+    adminLoginScreen.classList.add("is-hidden");
+    entryAdminScreen.classList.add("is-hidden");
+    entryRoleScreen.classList.add("is-hidden");
+
+    if (!adminUser.agencyId) {
+        editingAgencyId = null;
+
+        document.getElementById("agencySetup").style.display = "flex";
+        document.getElementById("overlay").style.display = "block";
+
+        return;
+    }
+
+    loadAgencies();
+    zoomToMyOffice(false);
+});
+
+
+// ==============================
+// ACCOUNT PANEL
+// ==============================
+
+const accountMenuBtn =
+document.getElementById("accountMenuBtn");
+
+const accountPanel =
+document.getElementById("accountPanel");
+
+const closeAccountPanel =
+document.getElementById("closeAccountPanel");
+
+const accountLogoutBtn =
+document.getElementById("accountLogoutBtn");
+
+
+function renderAccountPanel() {
+
+    const currentUser = getCurrentUser();
+
+    if (!currentUser) return;
+
+    const agencies =
+    JSON.parse(
+        localStorage.getItem("agencies") || "[]"
+    );
+
+    const myOffice =
+    agencies.find(
+        agency => agency.id === currentUser.agencyId
+    );
+
+    document.getElementById("accountUsername")
+    .textContent = currentUser.username || "بدون نام کاربری";
+
+    document.getElementById("accountOfficeName")
+    .textContent = myOffice?.name || "دفتری ثبت نشده";
+
+    document.getElementById("accountOfficeManager")
+    .textContent = myOffice?.manager || "ثبت نشده";
+
+    document.getElementById("accountOfficePhone")
+    .textContent = myOffice?.phone || "ثبت نشده";
+
+    document.getElementById("accountOfficeAddress")
+    .textContent = myOffice?.address || "ثبت نشده";
+
+    const logo =
+    document.getElementById("accountOfficeLogo");
+
+    const placeholder =
+    document.getElementById("accountOfficePlaceholder");
+
+    if (myOffice?.logo) {
+
+        logo.src = myOffice.logo;
+        logo.style.display = "block";
+        placeholder.style.display = "none";
+
+    } else {
+
+        logo.style.display = "none";
+        placeholder.style.display = "block";
+
+    }
+
+}
+
+
+// باز کردن پنل
+
+accountMenuBtn.addEventListener("click", () => {
+
+    renderAccountPanel();
+
+    accountPanel.classList.add("open");
+
+});
+
+
+// بستن پنل
+
+closeAccountPanel.addEventListener("click", () => {
+
+    accountPanel.classList.remove("open");
+
+});
+
+
+// خروج با همان منطق قبلی پروژه
+
+accountLogoutBtn.addEventListener("click", () => {
+
+    accountPanel.classList.remove("open");
+
+    document.getElementById("logoutBtn").click();
+
+});
+
+
+// بستن با کلید Escape
+
+document.addEventListener("keydown", event => {
+
+    if (event.key === "Escape") {
+        accountPanel.classList.remove("open");
+    }
+
+});
+
+
+// ===== تغییر رمز عبور حساب کاربری =====
+
+const openPasswordForm = document.getElementById("openPasswordForm");
+const accountPasswordForm = document.getElementById("accountPasswordForm");
+const accountPasswordCancel = document.getElementById("accountPasswordCancel");
+
+const accountCurrentPassword = document.getElementById("accountCurrentPassword");
+const accountNewPassword = document.getElementById("accountNewPassword");
+const accountConfirmPassword = document.getElementById("accountConfirmPassword");
+const accountPasswordMessage = document.getElementById("accountPasswordMessage");
+
+openPasswordForm.addEventListener("click", () => {
+    accountPasswordForm.classList.remove("is-hidden");
+    openPasswordForm.style.display = "none";
+    accountPasswordMessage.textContent = "";
+});
+
+accountPasswordCancel.addEventListener("click", () => {
+    accountPasswordForm.reset();
+    accountPasswordForm.classList.add("is-hidden");
+    openPasswordForm.style.display = "flex";
+    accountPasswordMessage.textContent = "";
+});
+
+accountPasswordForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const currentUser = getCurrentUser();
+
+    if (!currentUser) {
+        accountPasswordMessage.textContent = "حساب کاربری پیدا نشد.";
+        return;
+    }
+
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+
+    const userIndex = users.findIndex(user =>
+        String(user.id) === String(currentUser.id) &&
+        user.role === "admin"
+    );
+
+    if (userIndex === -1) {
+        accountPasswordMessage.textContent = "اطلاعات حساب پیدا نشد.";
+        return;
+    }
+
+    const user = users[userIndex];
+
+    // بررسی رمز فعلی
+    if (user.password !== accountCurrentPassword.value) {
+        accountPasswordMessage.textContent = "رمز عبور فعلی اشتباه است.";
+        return;
+    }
+
+    // بررسی طول رمز جدید
+    if (accountNewPassword.value.length < 6) {
+        accountPasswordMessage.textContent = "رمز جدید باید حداقل ۶ کاراکتر باشد.";
+        return;
+    }
+
+    // بررسی یکسان بودن رمز جدید و تکرار آن
+    if (accountNewPassword.value !== accountConfirmPassword.value) {
+        accountPasswordMessage.textContent = "رمز جدید و تکرار آن یکسان نیستند.";
+        return;
+    }
+
+    // جلوگیری از انتخاب رمز قبلی
+    if (accountNewPassword.value === user.password) {
+        accountPasswordMessage.textContent = "رمز جدید باید با رمز فعلی متفاوت باشد.";
+        return;
+    }
+
+    // ذخیره رمز جدید
+    users[userIndex].password = accountNewPassword.value;
+
+    localStorage.setItem("users", JSON.stringify(users));
+
+    accountPasswordMessage.style.color = "#4ade80";
+    accountPasswordMessage.textContent = "رمز عبور با موفقیت تغییر کرد.";
+
+    accountPasswordForm.reset();
+});
+
+// ===== ویرایش نام کاربری =====
+
+const openUsernameForm = document.getElementById("openUsernameForm");
+const accountUsernameForm = document.getElementById("accountUsernameForm");
+const accountUsernameCancel = document.getElementById("accountUsernameCancel");
+
+const accountNewUsername = document.getElementById("accountNewUsername");
+const accountUsernameMessage = document.getElementById("accountUsernameMessage");
+
+openUsernameForm.addEventListener("click", () => {
+
+    const currentUser = getCurrentUser();
+
+    accountNewUsername.value = currentUser?.username || "";
+
+    accountUsernameForm.classList.remove("is-hidden");
+    openUsernameForm.style.display = "none";
+
+    accountUsernameMessage.textContent = "";
+    accountUsernameMessage.style.color = "#f87171";
+
+});
+
+accountUsernameCancel.addEventListener("click", () => {
+
+    accountUsernameForm.reset();
+    accountUsernameForm.classList.add("is-hidden");
+
+    openUsernameForm.style.display = "flex";
+
+    accountUsernameMessage.textContent = "";
+
+});
+
+accountUsernameForm.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    const currentUser = getCurrentUser();
+
+    if (!currentUser) {
+        accountUsernameMessage.textContent = "حساب کاربری پیدا نشد.";
+        return;
+    }
+
+    const newUsername = accountNewUsername.value.trim();
+
+    if (newUsername.length < 3) {
+        accountUsernameMessage.textContent =
+            "نام کاربری باید حداقل ۳ کاراکتر باشد.";
+        return;
+    }
+
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+
+    const userIndex = users.findIndex(user =>
+        String(user.id) === String(currentUser.id) &&
+        user.role === "admin"
+    );
+
+    if (userIndex === -1) {
+        accountUsernameMessage.textContent =
+            "اطلاعات حساب پیدا نشد.";
+        return;
+    }
+
+    // بررسی تکراری نبودن نام کاربری
+    const usernameExists = users.some((user, index) =>
+        index !== userIndex &&
+        user.username.toLowerCase() === newUsername.toLowerCase()
+    );
+
+    if (usernameExists) {
+        accountUsernameMessage.textContent =
+            "این نام کاربری قبلاً استفاده شده است.";
+        return;
+    }
+
+    // ذخیره نام کاربری جدید
+    users[userIndex].username = newUsername;
+
+    localStorage.setItem("users", JSON.stringify(users));
+
+    // به‌روزرسانی حساب کاربری فعلی
+    currentUser.username = newUsername;
+
+    localStorage.setItem(
+        "currentUser",
+        JSON.stringify(currentUser)
+    );
+
+    // به‌روزرسانی نام نمایشی در پنل
+    document.getElementById("accountUsername").textContent = newUsername;
+
+    accountUsernameMessage.style.color = "#4ade80";
+    accountUsernameMessage.textContent =
+        "نام کاربری با موفقیت تغییر کرد.";
+
+    accountUsernameForm.reset();
+
+});
+
+const numericFields = [
+    'area',
+    'year',
+    'rooms',
+    'totalFloors',
+    'totalUnits',
+    'floor',
+    'unitNumber',
+    'sellPrice',
+    'pricePerMeter',
+    'depositPrice',
+    'rentDeposit',
+    'rentPrice'
+];
+
+const priceFields = [
+    'sellPrice',
+    'pricePerMeter',
+    'depositPrice',
+    'rentDeposit',
+    'rentPrice'
+];
+
+numericFields.forEach(id => {
+    const input = document.getElementById(id);
+
+    if (!input) return;
+
+    input.addEventListener('input', function () {
+
+        const cursor = this.selectionStart;
+        const oldValue = this.value;
+
+        const cleanValue = toEnglishDigits(oldValue)
+            .replace(/[^\d]/g, '');
+
+        const digitsBeforeCursor = toEnglishDigits(
+            oldValue.slice(0, cursor)
+        ).replace(/[^\d]/g, '').length;
+
+        let formattedValue = toPersianDigits(cleanValue);
+
+        if (priceFields.includes(id) && cleanValue) {
+            formattedValue = Number(cleanValue).toLocaleString('fa-IR');
+        }
+
+        this.value = formattedValue;
+
+        let newCursor = 0;
+        let digitCount = 0;
+
+        while (newCursor < formattedValue.length && digitCount < digitsBeforeCursor) {
+            if (/[۰-۹]/.test(formattedValue[newCursor])) {
+                digitCount++;
+            }
+            newCursor++;
+        }
+
+        this.setSelectionRange(newCursor, newCursor);
+    });
 });
