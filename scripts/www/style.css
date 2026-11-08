@@ -6586,367 +6586,6 @@ input[type="number"]{
     }
 }
 
-
-
-.role-entry-screen {
-    position: fixed;
-    inset: 0;
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    background:
-        radial-gradient(circle at top right, #dbeafe, transparent 40%),
-        linear-gradient(135deg, #f8fafc, #eef4ff);
-}
-.role-entry-box {
-    width: min(100%, 520px);
-    padding: 38px;
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    border-radius: 26px;
-    background: rgba(255, 255, 255, 0.92);
-    box-shadow: 0 20px 55px rgba(15, 23, 42, 0.14);
-    text-align: right;
-}
-.role-entry-label {
-    color: #2563eb;
-    font-size: 13px;
-    font-weight: 700;
-}
-.role-entry-box h1 {
-    margin: 10px 0 8px;
-    color: #0f172a;
-    font-size: 28px;
-}
-.role-entry-box > p {
-    margin: 0 0 28px;
-    color: #64748b;
-    line-height: 1.8;
-}
-.role-entry-options {
-    display: grid;
-    gap: 14px;
-}
-.role-entry-card {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 17px;
-    border: 1px solid #e2e8f0;
-    border-radius: 18px;
-    background: #fff;
-    cursor: pointer;
-    font-family: inherit;
-    text-align: right;
-    transition: 0.2s ease;
-}
-.role-entry-card:hover {
-    transform: translateY(-3px);
-    border-color: #93c5fd;
-    box-shadow: 0 12px 25px rgba(37, 99, 235, 0.12);
-}
-.role-entry-icon {
-    width: 48px;
-    height: 48px;
-    display: grid;
-    place-items: center;
-    flex: 0 0 48px;
-    border-radius: 14px;
-    font-size: 25px;
-}
-.admin-card .role-entry-icon {
-    color: #1d4ed8;
-    background: #dbeafe;
-}
-.advisor-card .role-entry-icon {
-    color: #047857;
-    background: #d1fae5;
-}
-.role-entry-content {
-    display: grid;
-    gap: 5px;
-    flex: 1;
-}
-.role-entry-content strong {
-    color: #0f172a;
-    font-size: 16px;
-}
-.role-entry-content small {
-    color: #64748b;
-    font-size: 12px;
-}
-.role-entry-arrow {
-    color: #94a3b8;
-    font-size: 22px;
-}
-@media (max-width: 520px) {
-    .role-entry-box {
-        padding: 26px 20px;
-    }
-}
-.role-entry-screen {
-    position: fixed;
-    inset: 0;
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    padding: 24px;
-    background:
-        radial-gradient(circle at 15% 20%, rgba(14, 165, 233, 0.35), transparent 28%),
-        radial-gradient(circle at 85% 80%, rgba(16, 185, 129, 0.28), transparent 25%),
-        linear-gradient(135deg, #07111f 0%, #0b1d33 50%, #07111f 100%);
-}
-.role-entry-screen::before,
-.role-entry-screen::after {
-    content: "";
-    position: absolute;
-    width: 330px;
-    height: 330px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 50%;
-}
-.role-entry-screen::before {
-    top: -150px;
-    right: -100px;
-}
-.role-entry-screen::after {
-    bottom: -190px;
-    left: -90px;
-}
-.role-entry-box {
-    position: relative;
-    z-index: 1;
-    width: min(100%, 560px);
-    padding: 42px;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 30px;
-    background: rgba(10, 25, 45, 0.7);
-    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(18px);
-    text-align: right;
-}
-.role-entry-label {
-    display: inline-flex;
-    padding: 7px 12px;
-    border: 1px solid rgba(125, 211, 252, 0.3);
-    border-radius: 999px;
-    color: #7dd3fc;
-    background: rgba(14, 165, 233, 0.12);
-    font-size: 12px;
-    font-weight: 700;
-}
-.role-entry-box h1 {
-    margin: 17px 0 8px;
-    color: #f8fafc;
-    font-size: 32px;
-}
-.role-entry-box > p {
-    margin: 0 0 30px;
-    color: #b6c4d5;
-    line-height: 1.9;
-}
-.role-entry-options {
-    display: grid;
-    gap: 15px;
-}
-.role-entry-card {
-    position: relative;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 19px;
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    color: #fff;
-    background: rgba(255, 255, 255, 0.06);
-    cursor: pointer;
-    font-family: inherit;
-    text-align: right;
-    transition: 0.25s ease;
-}
-.role-entry-card::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    transition: 0.25s ease;
-}
-.admin-card::before {
-    background: linear-gradient(120deg, rgba(37, 99, 235, 0.28), transparent 70%);
-}
-.advisor-card::before {
-    background: linear-gradient(120deg, rgba(5, 150, 105, 0.28), transparent 70%);
-}
-.role-entry-card:hover {
-    transform: translateY(-5px) scale(1.01);
-    border-color: rgba(255, 255, 255, 0.25);
-}
-.role-entry-card:hover::before {
-    opacity: 1;
-}
-.role-entry-icon,
-.role-entry-content,
-.role-entry-arrow {
-    position: relative;
-    z-index: 1;
-}
-.role-entry-icon {
-    width: 54px;
-    height: 54px;
-    display: grid;
-    place-items: center;
-    flex: 0 0 54px;
-    border-radius: 17px;
-    font-size: 26px;
-}
-.admin-card .role-entry-icon {
-    color: #bfdbfe;
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    box-shadow: 0 10px 22px rgba(37, 99, 235, 0.35);
-}
-.advisor-card .role-entry-icon {
-    color: #d1fae5;
-    background: linear-gradient(135deg, #059669, #047857);
-    box-shadow: 0 10px 22px rgba(5, 150, 105, 0.35);
-}
-.role-entry-content {
-    display: grid;
-    gap: 6px;
-    flex: 1;
-}
-.role-entry-content strong {
-    color: #f8fafc;
-    font-size: 17px;
-}
-.role-entry-content small {
-    color: #b6c4d5;
-    font-size: 12px;
-}
-.role-entry-arrow {
-    color: #cbd5e1;
-    font-size: 24px;
-    transition: 0.25s ease;
-}
-.role-entry-card:hover .role-entry-arrow {
-    transform: translateX(-6px);
-    color: #fff;
-}
-@media (max-width: 520px) {
-    .role-entry-box {
-        padding: 30px 21px;
-        border-radius: 24px;
-    }
-
-    .role-entry-box h1 {
-        font-size: 27px;
-    }
-}
-
-
-
-
-
-.role-entry-screen.is-hidden {
-    display: none;
-}
-.entry-back-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 25px;
-    padding: 0;
-    border: 0;
-    color: #cbd5e1;
-    background: transparent;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 13px;
-    transition: 0.2s ease;
-}
-.entry-back-btn:hover {
-    color: #fff;
-    transform: translateX(4px);
-}
-.create-admin-card .role-entry-icon {
-    color: #dbeafe;
-    background: linear-gradient(135deg, #7c3aed, #4f46e5);
-    box-shadow: 0 10px 22px rgba(124, 58, 237, 0.35);
-}
-.login-admin-card .role-entry-icon {
-    color: #cffafe;
-    background: linear-gradient(135deg, #0891b2, #0369a1);
-    box-shadow: 0 10px 22px rgba(8, 145, 178, 0.35);
-}
-
-
-
-.entry-form {
-    display: grid;
-    gap: 16px;
-    margin-top: 28px;
-}
-.entry-field {
-    display: grid;
-    gap: 8px;
-    color: #dbeafe;
-    font-size: 13px;
-    font-weight: 700;
-}
-.entry-field input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 14px 15px;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 13px;
-    outline: none;
-    color: #f8fafc;
-    background: rgba(255, 255, 255, 0.07);
-    font-family: inherit;
-    transition: 0.2s ease;
-}
-.entry-field input::placeholder {
-    color: #7890aa;
-}
-.entry-field input:focus {
-    border-color: #38bdf8;
-    box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.13);
-}
-.entry-form-error {
-    min-height: 18px;
-    margin: 0;
-    color: #fca5a5;
-    font-size: 12px;
-}
-.entry-submit-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 4px;
-    padding: 15px;
-    border: 0;
-    border-radius: 14px;
-    color: #fff;
-    background: linear-gradient(135deg, #2563eb, #4f46e5);
-    box-shadow: 0 12px 25px rgba(37, 99, 235, 0.28);
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 700;
-    transition: 0.2s ease;
-}
-.entry-submit-btn:hover {
-    transform: translateY(-2px);
-    filter: brightness(1.1);
-}
-
-
 /* =========================
    ACCOUNT SIDE PANEL
 ========================= */
@@ -6977,13 +6616,10 @@ input[type="number"]{
     direction: rtl;
     font-family: Vazirmatn, sans-serif;
 }
-
 .account-panel.open {
     right: 0;
 }
-
 /* سربرگ */
-
 .account-panel-header {
     height: 65px;
     min-height: 65px;
@@ -6997,14 +6633,12 @@ input[type="number"]{
     background: #111d3b;
     border-bottom: 1px solid #293b60;
 }
-
 .account-panel-header h2 {
     margin: 0;
     color: #fff;
     font-size: 17px;
     font-weight: 700;
 }
-
 .account-panel-header button {
     width: 34px;
     height: 34px;
@@ -7018,9 +6652,7 @@ input[type="number"]{
     font-size: 23px;
     cursor: pointer;
 }
-
 /* محتوای پنل */
-
 .account-panel-body {
     flex: 1;
     min-height: 0;
@@ -7029,9 +6661,7 @@ input[type="number"]{
 
     overflow-y: auto;
 }
-
 /* پروفایل */
-
 .account-profile {
     display: flex;
     align-items: center;
@@ -7043,7 +6673,6 @@ input[type="number"]{
     border: 1px solid rgba(255,255,255,.08);
     border-radius: 12px;
 }
-
 .account-avatar {
     width: 55px;
     height: 55px;
@@ -7056,32 +6685,26 @@ input[type="number"]{
     background: #304a7a;
     border-radius: 50%;
 }
-
 .account-avatar img {
     width: 27px;
     height: 27px;
     filter: brightness(0) invert(1);
 }
-
 .account-profile-info {
     display: flex;
     flex-direction: column;
     gap: 5px;
     min-width: 0;
 }
-
 .account-profile-info strong {
     color: #fff;
     font-size: 15px;
 }
-
 .account-profile-info span {
     color: #93b4e8;
     font-size: 12px;
 }
-
 /* کارت دفتر */
-
 .account-office-card {
     margin-top: 22px;
     padding: 16px;
@@ -7090,7 +6713,6 @@ input[type="number"]{
     border: 1px solid rgba(255,255,255,.08);
     border-radius: 12px;
 }
-
 .account-office-heading {
     display: flex;
     align-items: center;
@@ -7098,7 +6720,6 @@ input[type="number"]{
 
     margin-bottom: 18px;
 }
-
 .account-office-logo {
     width: 62px;
     height: 62px;
@@ -7114,39 +6735,32 @@ input[type="number"]{
     border: 1px solid #405783;
     border-radius: 10px;
 }
-
 .account-office-logo img {
     display: none;
     width: 100%;
     height: 100%;
     object-fit: contain;
 }
-
 .account-office-logo span {
     color: #a9bedf;
     font-size: 12px;
 }
-
 .account-office-title {
     display: flex;
     flex-direction: column;
     gap: 6px;
     min-width: 0;
 }
-
 .account-office-title span {
     color: #93b4e8;
     font-size: 11px;
 }
-
 .account-office-title strong {
     color: #fff;
     font-size: 14px;
     overflow-wrap: anywhere;
 }
-
 /* اطلاعات دفتر */
-
 .account-info-row {
     display: flex;
     align-items: flex-start;
@@ -7162,7 +6776,6 @@ input[type="number"]{
     font-size: 12px;
     line-height: 1.9;
 }
-
 .account-info-row img {
     width: 18px;
     height: 18px;
@@ -7172,14 +6785,11 @@ input[type="number"]{
 
     filter: brightness(0) invert(1);
 }
-
 .account-info-row span {
     min-width: 0;
     overflow-wrap: anywhere;
 }
-
 /* تنظیمات حساب */
-
 .account-settings-section {
     margin-top: 22px;
     padding: 16px;
@@ -7188,7 +6798,6 @@ input[type="number"]{
     border: 1px solid rgba(255,255,255,.08);
     border-radius: 12px;
 }
-
 .account-settings-section h3 {
     margin: 0 0 14px;
 
@@ -7196,9 +6805,7 @@ input[type="number"]{
     font-size: 14px;
     font-weight: 700;
 }
-
 /* دکمه‌های تنظیمات */
-
 .account-setting-btn {
     width: 100%;
     min-height: 45px;
@@ -7221,20 +6828,16 @@ input[type="number"]{
     cursor: pointer;
     transition: .2s ease;
 }
-
 .account-setting-btn:hover {
     background: #263f70;
     border-color: #5476ad;
 }
-
 .account-setting-btn span:last-child {
     color: #93b4e8;
     font-size: 21px;
     line-height: 1;
 }
-
 /* فرم‌های حساب */
-
 .account-password-form {
     margin-top: 14px;
     padding: 14px;
@@ -7243,15 +6846,12 @@ input[type="number"]{
     border: 1px solid #334b78;
     border-radius: 9px;
 }
-
 .account-password-form.is-hidden {
     display: none;
 }
-
 .account-password-field {
     margin-bottom: 13px;
 }
-
 .account-password-field label {
     display: block;
     margin-bottom: 7px;
@@ -7259,7 +6859,6 @@ input[type="number"]{
     color: #cbd5e1;
     font-size: 12px;
 }
-
 .account-password-field input {
     width: 100%;
     height: 42px;
@@ -7280,16 +6879,13 @@ input[type="number"]{
 
     transition: .2s ease;
 }
-
 .account-password-field input::placeholder {
     color: #7185aa;
 }
-
 .account-password-field input:focus {
     border-color: #60a5fa;
     background: #13264d;
 }
-
 .account-password-message {
     min-height: 18px;
     margin: 8px 0;
@@ -7298,15 +6894,12 @@ input[type="number"]{
     font-size: 12px;
     line-height: 1.8;
 }
-
 /* دکمه‌های فرم */
-
 .account-password-actions {
     display: flex;
     gap: 9px;
     margin-top: 12px;
 }
-
 .account-password-actions button {
     flex: 1;
     min-height: 40px;
@@ -7321,27 +6914,21 @@ input[type="number"]{
     cursor: pointer;
     transition: .2s ease;
 }
-
 .account-password-save {
     background: #2563eb;
     color: #fff;
 }
-
 .account-password-save:hover {
     background: #1d4ed8;
 }
-
 .account-password-cancel {
     background: #334775;
     color: #dbeafe;
 }
-
 .account-password-cancel:hover {
     background: #405783;
 }
-
 /* خروج */
-
 .account-logout-btn {
     width: 100%;
     min-height: 48px;
@@ -7366,19 +6953,15 @@ input[type="number"]{
     cursor: pointer;
     transition: .2s ease;
 }
-
 .account-logout-btn:hover {
     background: #702033;
 }
-
 .account-logout-btn img {
     width: 19px;
     height: 19px;
     filter: brightness(0) invert(1);
 }
-
 /* موبایل */
-
 @media (max-width: 500px) {
 
     .account-panel {
@@ -7396,3 +6979,1386 @@ input[type="number"]{
     }
 
 }
+
+
+
+
+/* =====================================
+   صفحه ورود اصلی - مدیریت هوشمند املاک
+===================================== */
+#roleEntryScreen {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+    padding: 16px;
+    box-sizing: border-box;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 38%,
+            rgba(14, 75, 145, 0.42),
+            transparent 55%
+        ),
+        linear-gradient(
+            145deg,
+            #06152f,
+            #08234f 55%,
+            #04132e
+        );
+}
+#roleEntryScreen.is-hidden {
+    display: none;
+}
+#roleEntryScreen::before,
+#roleEntryScreen::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+
+    width: 150%;
+    height: 260px;
+    border-radius: 50%;
+    transform: rotate(-9deg);
+}
+#roleEntryScreen::before {
+    bottom: -190px;
+    left: -25%;
+
+    border-top: 2px solid #00aaff;
+
+    background: linear-gradient(
+        180deg,
+        rgba(0, 119, 255, 0.22),
+        transparent
+    );
+
+    box-shadow: 0 -8px 35px rgba(0, 145, 255, 0.16);
+}
+#roleEntryScreen::after {
+    bottom: -225px;
+    left: -20%;
+    border-top: 1px solid rgba(0, 200, 255, 0.5);
+}
+/* =====================================
+   ساختار اصلی و برند
+===================================== */
+.welcome-container {
+    position: relative;
+    z-index: 1;
+
+    width: 100%;
+    max-height: 100%;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: clamp(14px, 3vh, 28px);
+    box-sizing: border-box;
+}
+.welcome-brand {
+    width: 100%;
+    text-align: center;
+    flex-shrink: 0;
+    transform: translateY(-70px);
+}
+.welcome-logo {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 12px;
+
+    display: grid;
+    place-items: center;
+
+    color: #dff7ff;
+
+    filter:
+        drop-shadow(0 0 8px #00aaff)
+        drop-shadow(0 0 20px rgba(0, 145, 255, 0.7));
+}
+.welcome-logo svg {
+    width: 100%;
+    height: 100%;
+}
+.welcome-brand h1 {
+    margin: 0;
+    color: #fff;
+
+    font-size: clamp(25px, 4vw, 40px);
+    font-weight: 900;
+    letter-spacing: -1px;
+}
+.welcome-brand h1 span {
+    color: #13c5ff;
+    text-shadow: 0 0 20px rgba(0, 190, 255, 0.35);
+}
+.welcome-features {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 14px;
+    margin-top: 15px;
+
+    color: #d0e1f5;
+    font-size: 13px;
+}
+.welcome-features i {
+    width: 2px;
+    height: 16px;
+    border-radius: 5px;
+
+    background: #00c5ff;
+    box-shadow: 0 0 8px #00c5ff;
+}
+.welcome-brand::after {
+    content: "";
+    display: block;
+
+    width: 435px;
+    max-width: 85%;
+    height: 2px;
+    margin: 19px auto 0;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        #087fff,
+        #00e5ff,
+        #087fff,
+        transparent
+    );
+
+    box-shadow: 0 0 12px #008cff;
+}
+/* =====================================
+   چیدمان دکمه‌ها
+===================================== */
+.welcome-actions {
+    width: min(320px, 100%);
+
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    gap: 0;
+    flex-shrink: 0;
+}
+.welcome-circle {
+    position: relative;
+
+    aspect-ratio: 1 / 1;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+    padding: 18px;
+
+    box-sizing: border-box;
+    border-radius: 50%;
+
+    color: #fff;
+    cursor: pointer;
+    font-family: inherit;
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    transition:
+        box-shadow 0.3s ease,
+        filter 0.3s ease;
+
+    animation: gentleFloat 4.5s ease-in-out infinite;
+}
+@keyframes gentleFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-6px);
+    }
+}
+.admin-circle {
+    width: 210px;
+    align-self: flex-start;
+
+    border: 2px solid #00c8ff;
+
+    background: radial-gradient(
+        circle at 35% 25%,
+        rgba(0, 145, 255, 0.55),
+        rgba(0, 39, 105, 0.9) 75%
+    );
+
+    box-shadow:
+        0 0 10px #008cff,
+        0 0 30px rgba(0, 140, 255, 0.35),
+        inset 0 0 25px rgba(0, 180, 255, 0.22);
+}
+.advisor-circle {
+    width: 150px;
+    align-self: flex-end;
+
+    /* نزدیک‌تر شدن به دایره مدیر */
+    margin-top: -35px;
+
+    border: 2px solid #00e9b0;
+
+    background: radial-gradient(
+        circle at 35% 25%,
+        rgba(0, 190, 145, 0.5),
+        rgba(0, 65, 70, 0.92) 75%
+    );
+
+    box-shadow:
+        0 0 10px #00dca5,
+        0 0 30px rgba(0, 220, 165, 0.3),
+        inset 0 0 25px rgba(0, 220, 165, 0.2);
+
+    animation-delay: 0.8s;
+}
+/* =====================================
+   آیکون‌های SVG
+===================================== */
+.entry-icon {
+    display: block;
+
+    width: 58px;
+    height: 58px;
+
+    flex-shrink: 0;
+
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+
+    -webkit-mask-position: center;
+    mask-position: center;
+
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+.office-icon {
+    background-color: #ffffff;
+
+    -webkit-mask-image: url("./icons/office-login.svg");
+    mask-image: url("./icons/office-login.svg");
+
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+
+    -webkit-mask-position: center;
+    mask-position: center;
+
+    -webkit-mask-size: contain;
+    mask-size: contain;
+
+    filter:
+        drop-shadow(0 0 4px #ffffff)
+        drop-shadow(0 0 9px #00c8ff)
+        drop-shadow(0 0 17px #008cff);
+}
+.user-icon {
+    background-color: #ffffff;
+
+    -webkit-mask-image: url("./icons/user.svg");
+    mask-image: url("./icons/user.svg");
+
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+
+    -webkit-mask-position: center;
+    mask-position: center;
+
+    -webkit-mask-size: contain;
+    mask-size: contain;
+
+    filter:
+        drop-shadow(0 0 4px #ffffff)
+        drop-shadow(0 0 9px #00e9b0)
+        drop-shadow(0 0 17px #00c58f);
+}
+/* =====================================
+   نوشته‌های داخل دکمه‌ها
+===================================== */
+.welcome-circle strong {
+    color: #fff;
+    font-size: 21px;
+    font-weight: 800;
+}
+.welcome-circle small {
+    color: #d9edff;
+    font-size: 14px;
+    font-weight: 400;
+}
+.advisor-circle .entry-icon {
+    width: 42px;
+    height: 42px;
+}
+.advisor-circle strong {
+    font-size: 17px;
+}
+.advisor-circle small {
+    font-size: 11px;
+}
+/* =====================================
+   افکت هاور و کلیک
+===================================== */
+.admin-circle:hover {
+    box-shadow:
+        0 0 18px #008cff,
+        0 0 48px rgba(0, 140, 255, 0.55),
+        inset 0 0 30px rgba(0, 180, 255, 0.3);
+
+    filter: brightness(1.12);
+}
+.advisor-circle:hover {
+    box-shadow:
+        0 0 18px #00dca5,
+        0 0 48px rgba(0, 220, 165, 0.5),
+        inset 0 0 30px rgba(0, 220, 165, 0.3);
+
+    filter: brightness(1.12);
+}
+.welcome-circle:active {
+    filter: brightness(1.2);
+}
+.welcome-circle:focus-visible {
+    outline: 3px solid white;
+    outline-offset: 6px;
+}
+/* =====================================
+   موبایل
+===================================== */
+@media (max-width: 600px) {
+
+    #roleEntryScreen {
+        padding: 12px;
+    }
+
+    .welcome-container {
+        gap: 18px;
+    }
+
+    .welcome-logo {
+        width: 58px;
+        height: 58px;
+        margin-bottom: 9px;
+    }
+
+    .welcome-brand h1 {
+        font-size: 26px;
+    }
+
+    .welcome-features {
+        gap: 8px;
+        font-size: 10px;
+        margin-top: 12px;
+    }
+
+    .welcome-features i {
+        height: 13px;
+    }
+
+    .welcome-brand::after {
+        margin-top: 14px;
+    }
+
+    .welcome-actions {
+        width: min(300px, 100%);
+    }
+
+    .admin-circle {
+        width: 180px;
+    }
+
+    .advisor-circle {
+        width: 130px;
+        margin-top: -25px;
+    }
+
+    .entry-icon {
+        width: 48px;
+        height: 48px;
+    }
+
+    .welcome-circle {
+        gap: 8px;
+        padding: 14px;
+    }
+
+    .welcome-circle strong {
+        font-size: 19px;
+    }
+
+    .welcome-circle small {
+        font-size: 12px;
+    }
+
+    .advisor-circle .entry-icon {
+        width: 38px;
+        height: 38px;
+    }
+
+    .advisor-circle strong {
+        font-size: 16px;
+    }
+
+    .advisor-circle small {
+        font-size: 10px;
+    }
+}
+/* =====================================
+   نمایشگرهای کوتاه
+===================================== */
+@media (max-height: 700px) {
+
+    .welcome-container {
+        gap: 10px;
+    }
+
+    .welcome-logo {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 5px;
+    }
+
+    .welcome-brand h1 {
+        font-size: 25px;
+    }
+
+    .welcome-features {
+        margin-top: 8px;
+    }
+
+    .welcome-brand::after {
+        margin-top: 10px;
+    }
+
+    .welcome-actions {
+        gap: 0;
+    }
+
+    .admin-circle {
+        width: 165px;
+    }
+
+    .advisor-circle {
+        width: 125px;
+        margin-top: -30px;
+    }
+
+    .entry-icon {
+        width: 42px;
+        height: 42px;
+    }
+
+    .welcome-circle {
+        gap: 6px;
+    }
+
+    .welcome-circle strong {
+        font-size: 17px;
+    }
+
+    .welcome-circle small {
+        font-size: 11px;
+    }
+
+    .advisor-circle .entry-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .advisor-circle strong {
+        font-size: 15px;
+    }
+
+    .advisor-circle small {
+        font-size: 10px;
+    }
+}
+/* کاهش حرکت در تنظیمات دسترسی دستگاه */
+@media (prefers-reduced-motion: reduce) {
+    .welcome-circle {
+        animation: none;
+        transition: none;
+    }
+}
+
+
+
+
+/* =========================================================
+   ورود و ثبت‌نام مدیریت هوشمند املاک
+========================================================= */
+/* =========================================================
+   01 ـ متغیرهای اصلی
+========================================================= */
+:root {
+    --entry-bg-dark: #071d3e;
+    --entry-bg-light: #0b2852;
+
+    --entry-card-bg: rgba(5, 24, 52, 0.9);
+    --entry-card-border: rgba(0, 195, 255, 0.3);
+
+    --entry-primary: #0878df;
+    --entry-primary-dark: #0754b8;
+    --entry-accent: #00c8ff;
+
+    --entry-text: #ffffff;
+    --entry-text-muted: #a9c9e8;
+    --entry-text-soft: #7895b5;
+
+    --entry-error: #ff9999;
+
+    --entry-radius: 22px;
+    --entry-transition: 0.32s ease;
+
+    --entry-card-width: 440px;
+    --entry-card-height: 520px;
+}
+
+/* =========================================================
+   02 ـ جلوگیری از اسکرول در زمان نمایش صفحه ورود
+========================================================= */
+html:has(#roleEntryScreen:not(.is-hidden)),
+body:has(#roleEntryScreen:not(.is-hidden)) {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+}
+#roleEntryScreen,
+#roleEntryScreen * {
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   03 ـ صفحه اصلی
+========================================================= */
+#roleEntryScreen {
+    position: fixed;
+    inset: 0;
+
+    z-index: 10000;
+
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+
+    overflow: hidden !important;
+
+    color: var(--entry-text);
+
+    background-color: var(--entry-bg-dark);
+
+    background-image:
+        radial-gradient(
+            ellipse at 50% 20%,
+            rgba(0, 126, 255, 0.2),
+            transparent 55%
+        ),
+        linear-gradient(
+            180deg,
+            var(--entry-bg-light) 0%,
+            var(--entry-bg-dark) 100%
+        );
+
+    overscroll-behavior: none;
+
+    scrollbar-width: none;
+}
+#roleEntryScreen::-webkit-scrollbar {
+    display: none;
+}
+#roleEntryScreen.is-hidden {
+    display: none !important;
+}
+
+/* =========================================================
+   04 ـ ساختار اصلی صفحه
+========================================================= */
+#roleEntryScreen .welcome-container {
+    position: relative;
+
+    display: grid;
+
+    grid-template-areas:
+        "brand"
+        "entry";
+
+    grid-template-rows: 24% 76%;
+
+    justify-items: center;
+    align-items: center;
+
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+
+    padding: 0 20px;
+
+    overflow: hidden;
+}
+
+/* =========================================================
+   05 ـ برند، لوگو و تیتر
+========================================================= */
+#roleEntryScreen .welcome-brand {
+    grid-area: brand;
+
+    align-self: start;
+    justify-self: center;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: flex-start;
+
+    width: 100%;
+    max-width: 100%;
+
+    margin: 0;
+    padding-top: clamp(18px, 4vh, 42px);
+
+    box-sizing: border-box;
+
+    transform: none !important;
+}
+#roleEntryScreen .welcome-logo {
+    flex-shrink: 0;
+}
+#roleEntryScreen .welcome-brand h1 {
+    margin: 10px 0 0;
+
+    text-align: center;
+}
+#roleEntryScreen .welcome-features {
+    margin-top: 12px;
+    text-align: center;
+}
+#roleEntryScreen .welcome-brand img,
+#roleEntryScreen .welcome-brand svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* =========================================================
+   06 ـ جایگاه فرم‌ها و دکمه‌های ورود
+========================================================= */
+#roleEntryScreen .welcome-actions,
+#roleEntryScreen .admin-inline-login {
+    grid-area: entry;
+
+    grid-row: 2;
+
+    align-self: center;
+    justify-self: center;
+
+    margin: 0;
+}
+
+/* =========================================================
+   07 ـ انتخاب نوع ورود
+========================================================= */
+#roleEntryScreen .welcome-actions {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-wrap: wrap;
+    gap: 28px;
+
+    opacity: 1;
+    visibility: visible;
+
+    pointer-events: auto;
+
+    transform: translateY(0) scale(1);
+
+    transition:
+        opacity var(--entry-transition),
+        transform var(--entry-transition),
+        visibility 0s;
+}
+#roleEntryScreen .welcome-actions.is-leaving {
+    opacity: 0;
+    visibility: hidden;
+
+    pointer-events: none;
+
+    transform: translateY(22px) scale(0.94);
+
+    transition:
+        opacity var(--entry-transition),
+        transform var(--entry-transition),
+        visibility 0s linear 0.32s;
+}
+#roleEntryScreen .welcome-actions.is-hidden {
+    display: flex !important;
+
+    opacity: 0;
+    visibility: hidden;
+
+    pointer-events: none;
+}
+
+/* =========================================================
+   08 ـ دکمه‌های انتخاب نقش
+========================================================= */
+#roleEntryScreen .welcome-circle {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        opacity 0.25s ease;
+}
+#roleEntryScreen .welcome-circle:hover {
+    transform: translateY(-5px);
+}
+#roleEntryScreen .welcome-circle:active {
+    transform: scale(0.97);
+}
+
+/* =========================================================
+   09 ـ پنل‌های ورود و ثبت‌نام
+========================================================= */
+#roleEntryScreen .admin-inline-login {
+    display: block;
+
+    width: min(
+        var(--entry-card-width),
+        calc(100vw - 40px)
+    );
+
+    height: var(--entry-card-height);
+    min-height: var(--entry-card-height);
+    max-height: calc(100% - 20px);
+
+    padding: 20px 28px;
+
+    border: 1px solid var(--entry-card-border);
+    border-radius: var(--entry-radius);
+
+    color: var(--entry-text);
+
+    background: var(--entry-card-bg);
+
+    box-shadow:
+        0 0 22px rgba(0, 140, 255, 0.16),
+        inset 0 0 25px rgba(0, 140, 255, 0.04);
+
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+
+    opacity: 0;
+    visibility: hidden;
+
+    pointer-events: none;
+
+    transform: translateY(22px) scale(0.96);
+
+    transition:
+        opacity var(--entry-transition),
+        transform var(--entry-transition),
+        visibility 0s linear 0.32s;
+}
+#roleEntryScreen .admin-inline-login.is-hidden {
+    display: none !important;
+}
+#roleEntryScreen .admin-inline-login.is-visible {
+    display: block;
+
+    opacity: 1;
+    visibility: visible;
+
+    pointer-events: auto;
+
+    transform: translateY(0) scale(1);
+
+    transition:
+        opacity var(--entry-transition),
+        transform var(--entry-transition),
+        visibility 0s;
+}
+
+/* =========================================================
+   10 ـ عنوان فرم‌ها
+========================================================= */
+#roleEntryScreen .admin-inline-login h2 {
+    margin: 0 0 16px;
+
+    color: var(--entry-text);
+
+    text-align: center;
+
+    font-size: 21px;
+    font-weight: 800;
+}
+
+/* =========================================================
+   11 ـ دکمه بازگشت
+========================================================= */
+#roleEntryScreen .admin-inline-login .entry-back-btn {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    margin-bottom: 18px;
+    padding: 0;
+
+    border: 0;
+
+    color: var(--entry-text-muted);
+    background: transparent;
+
+    cursor: pointer;
+
+    font-family: inherit;
+    font-size: 12px;
+
+    transition: color 0.2s ease;
+}
+#roleEntryScreen .admin-inline-login .entry-back-btn:hover {
+    color: var(--entry-text);
+}
+
+/* =========================================================
+   12 ـ ساختار فرم
+========================================================= */
+#roleEntryScreen .admin-inline-login .entry-form {
+    display: grid;
+
+    gap: 10px;
+
+    width: 100%;
+    margin: 0;
+}
+
+/* =========================================================
+   13 ـ فیلدهای ورودی
+========================================================= */
+#roleEntryScreen .admin-inline-login .entry-field {
+    display: grid;
+
+    gap: 8px;
+
+    width: 100%;
+
+    color: #d8eaff;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+#roleEntryScreen .admin-inline-login .entry-field input {
+    display: block;
+
+    width: 100%;
+    min-height: 46px;
+
+    padding: 13px 14px;
+
+    border: 1px solid rgba(148, 190, 230, 0.2);
+    border-radius: 12px;
+
+    outline: none;
+
+    color: var(--entry-text);
+    background: rgba(255, 255, 255, 0.06);
+
+    font-family: inherit;
+    font-size: 13px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+#roleEntryScreen .admin-inline-login .entry-field input::placeholder {
+    color: var(--entry-text-soft);
+    opacity: 1;
+}
+#roleEntryScreen .admin-inline-login .entry-field input:focus {
+    border-color: var(--entry-accent);
+
+    background: rgba(255, 255, 255, 0.09);
+
+    box-shadow: 0 0 0 3px rgba(0, 200, 255, 0.12);
+}
+
+/* =========================================================
+   14 ـ فراموشی رمز عبور
+========================================================= */
+#roleEntryScreen .login-forgot-row {
+    display: flex;
+
+    justify-content: flex-end;
+
+    width: 100%;
+
+    margin-top: -5px;
+}
+#roleEntryScreen .login-forgot-row button {
+    padding: 0;
+
+    border: 0;
+
+    color: #67d9ff;
+    background: transparent;
+
+    cursor: pointer;
+
+    font-family: inherit;
+    font-size: 12px;
+
+    transition: color 0.2s ease;
+}
+#roleEntryScreen .login-forgot-row button:hover {
+    color: var(--entry-text);
+}
+
+/* =========================================================
+   15 ـ پیام خطا
+========================================================= */
+#roleEntryScreen .admin-inline-login .entry-form-error {
+    min-height: 18px;
+
+    margin: 0;
+
+    color: var(--entry-error);
+
+    font-size: 12px;
+    line-height: 1.7;
+
+    text-align: center;
+}
+
+/* =========================================================
+   16 ـ دکمه اصلی فرم
+========================================================= */
+#roleEntryScreen .admin-inline-login .entry-submit-btn {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    width: 100%;
+    min-height: 48px;
+
+    padding: 14px;
+    margin-top: 3px;
+
+    border: 1px solid rgba(0, 200, 255, 0.5);
+    border-radius: 12px;
+
+    color: var(--entry-text);
+
+    background: linear-gradient(
+        135deg,
+        var(--entry-primary),
+        var(--entry-primary-dark)
+    );
+
+    box-shadow: 0 8px 22px rgba(0, 120, 255, 0.25);
+
+    cursor: pointer;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+
+    transition:
+        filter 0.25s ease,
+        box-shadow 0.25s ease,
+        transform 0.25s ease;
+}
+#roleEntryScreen .admin-inline-login .entry-submit-btn:hover {
+    filter: brightness(1.15);
+
+    box-shadow: 0 0 20px rgba(0, 170, 255, 0.35);
+
+    transform: translateY(-2px);
+}
+#roleEntryScreen .admin-inline-login .entry-submit-btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+/* =========================================================
+   17 ـ خط جداکننده مشترک
+========================================================= */
+#roleEntryScreen .login-register-link,
+#roleEntryScreen .register-description {
+    border-top: 1px solid rgba(148, 190, 230, 0.18);
+
+    padding-top: 14px;
+}
+
+/* =========================================================
+   18 ـ لینک ثبت‌نام
+========================================================= */
+#roleEntryScreen .login-register-link {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-wrap: wrap;
+    gap: 5px;
+
+    margin-top: 19px;
+
+    color: #c2d8ee;
+
+    font-size: 12px;
+}
+#roleEntryScreen .login-register-link button {
+    padding: 0;
+
+    border: 0;
+
+    color: #45d4ff;
+    background: transparent;
+
+    cursor: pointer;
+
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+
+    transition: color 0.2s ease;
+}
+#roleEntryScreen .login-register-link button:hover {
+    color: var(--entry-text);
+}
+
+/* =========================================================
+   19 ـ توضیحات ثبت‌نام
+========================================================= */
+#roleEntryScreen .register-description {
+    margin: 0;
+
+    color: #b8cbe3;
+
+    font-size: 12px;
+    line-height: 1.8;
+
+    text-align: center;
+}
+
+/* =========================================================
+   20 ـ موبایل
+========================================================= */
+@media (max-width: 600px) {
+
+    :root {
+        --entry-card-width: 440px;
+        --entry-card-height: 460px;
+    }
+
+    #roleEntryScreen .welcome-container {
+        grid-template-rows: 22% 78%;
+
+        padding: 0 12px;
+    }
+
+    #roleEntryScreen .welcome-brand {
+        padding-top: 16px;
+    }
+
+    #roleEntryScreen .welcome-actions {
+        gap: 16px;
+    }
+
+    #roleEntryScreen .admin-inline-login {
+        width: calc(100vw - 36px);
+
+        padding: 18px 18px;
+
+        border-radius: 18px;
+    }
+
+    #roleEntryScreen .admin-inline-login h2 {
+        margin-bottom: 16px;
+
+        font-size: 18px;
+    }
+
+    #roleEntryScreen .admin-inline-login .entry-back-btn {
+        margin-bottom: 12px;
+    }
+
+    #roleEntryScreen .admin-inline-login .entry-form {
+        gap: 11px;
+    }
+
+    #roleEntryScreen .admin-inline-login .entry-field {
+        gap: 5px;
+
+        font-size: 12px;
+    }
+
+    #roleEntryScreen .admin-inline-login .entry-field input {
+        min-height: 42px;
+
+        padding: 10px 12px;
+    }
+
+    #roleEntryScreen .admin-inline-login .entry-submit-btn {
+        min-height: 44px;
+
+        padding: 10px;
+
+        font-size: 13px;
+    }
+
+    #roleEntryScreen .login-register-link {
+        margin-top: 12px;
+
+        padding-top: 12px;
+
+        font-size: 11px;
+    }
+
+    #roleEntryScreen .register-description {
+        padding-top: 12px;
+
+        font-size: 11px;
+    }
+}
+/* =========================================================
+   21 ـ موبایل کوچک
+========================================================= */
+@media (max-width: 380px) {
+
+    :root {
+        --entry-card-height: 440px;
+    }
+
+    #roleEntryScreen .welcome-container {
+        grid-template-rows: 20% 80%;
+
+        padding: 0 8px;
+    }
+
+    #roleEntryScreen .welcome-brand {
+        padding-top: 12px;
+    }
+
+    #roleEntryScreen .welcome-actions {
+        gap: 12px;
+    }
+
+    #roleEntryScreen .admin-inline-login {
+        width: calc(100vw - 28px);
+
+        padding: 14px 15px;
+    }
+
+    #roleEntryScreen .admin-inline-login h2 {
+        font-size: 17px;
+    }
+}
+/* =========================================================
+   22 ـ نمایشگرهای کوتاه
+========================================================= */
+@media (max-height: 750px) {
+
+    :root {
+        --entry-card-height: min(450px, calc(100dvh - 150px));
+    }
+
+    #roleEntryScreen .welcome-container {
+        grid-template-rows: 21% 79%;
+    }
+
+    #roleEntryScreen .welcome-brand {
+        padding-top: 10px;
+    }
+
+    #roleEntryScreen .admin-inline-login {
+        padding: 16px 20px;
+    }
+
+    #roleEntryScreen .admin-inline-login h2 {
+        margin-bottom: 12px;
+    }
+
+    #roleEntryScreen .admin-inline-login .entry-back-btn {
+        margin-bottom: 10px;
+    }
+
+    #roleEntryScreen .admin-inline-login .entry-form {
+        gap: 9px;
+    }
+
+    #roleEntryScreen .admin-inline-login .entry-field {
+        gap: 4px;
+    }
+
+    #roleEntryScreen .admin-inline-login .entry-field input {
+        min-height: 39px;
+
+        padding: 8px 12px;
+    }
+
+    #roleEntryScreen .admin-inline-login .entry-submit-btn {
+        min-height: 42px;
+
+        padding: 9px;
+    }
+
+    #roleEntryScreen .login-register-link {
+        margin-top: 10px;
+        padding-top: 10px;
+    }
+
+    #roleEntryScreen .register-description {
+        padding-top: 10px;
+    }
+}
+/* =========================================================
+   23 ـ نمایشگرهای خیلی کوتاه
+========================================================= */
+@media (max-height: 580px) {
+
+    :root {
+        --entry-card-height: calc(100dvh - 115px);
+    }
+
+    #roleEntryScreen .welcome-container {
+        grid-template-rows: 18% 82%;
+    }
+
+    #roleEntryScreen .welcome-brand {
+        padding-top: 5px;
+    }
+
+    #roleEntryScreen .admin-inline-login {
+        padding: 10px 16px;
+    }
+
+    #roleEntryScreen .admin-inline-login h2 {
+        margin-bottom: 8px;
+        font-size: 17px;
+    }
+
+    #roleEntryScreen .admin-inline-login .entry-form {
+        gap: 6px;
+    }
+
+    #roleEntryScreen .admin-inline-login .entry-field input {
+        min-height: 34px;
+        padding: 6px 10px;
+    }
+
+    #roleEntryScreen .admin-inline-login .entry-submit-btn {
+        min-height: 36px;
+        padding: 6px;
+    }
+
+    #roleEntryScreen .login-register-link,
+    #roleEntryScreen .register-description {
+        margin-top: 7px;
+        padding-top: 7px;
+    }
+}
+/* =========================================================
+   24 ـ کاهش حرکت
+========================================================= */
+@media (prefers-reduced-motion: reduce) {
+
+    #roleEntryScreen .welcome-actions,
+    #roleEntryScreen .admin-inline-login,
+    #roleEntryScreen .welcome-circle,
+    #roleEntryScreen .admin-inline-login .entry-submit-btn {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+
+/* =====================================
+   نمایش دکمه‌های قفل‌شده برای مشاور
+===================================== */
+.popup-actions button {
+    position: relative;
+}
+.popup-actions button.is-locked {
+    opacity: 0.52;
+    filter: grayscale(1);
+}
+.popup-actions button.is-locked::after {
+    content: "🔒";
+    position: absolute;
+    top: -8px;
+    left: -7px;
+    width: 20px;
+    height: 20px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #334155;
+    font-size: 11px;
+    line-height: 1;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.25);
+}
+
+/* =====================================
+   تم سبز هماهنگ با فضای آبی برنامه
+===================================== */
+
+#advisorInlineLogin {
+    border-color: rgba(45, 212, 191, 0.7) !important;
+
+    background: #061b34 !important;
+
+    box-shadow:
+        0 25px 60px rgba(2, 12, 27, 0.55),
+        0 0 24px rgba(20, 184, 166, 0.16) !important;
+}
+
+#advisorInlineLogin .entry-submit-btn {
+    background: #0f8f7d !important;
+    box-shadow: none !important;
+}
+
+#advisorInlineLogin .entry-submit-btn:hover {
+    background: #14a892 !important;
+    box-shadow: none !important;
+}
+
+#advisorInlineLogin .entry-back-btn,
+#advisorInlineLogin .entry-field span {
+    color: #5eead4 !important;
+}
+
