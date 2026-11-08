@@ -45,7 +45,6 @@
         <!-- سربرگ -->
         <div class="agency-header">
             <h2>ثبت دفتر جدید</h2>
-            <button type="button" id="closeAgencySetup" aria-label="بستن">×</button>
         </div>
 
         <!-- اطلاعات دفتر -->
@@ -199,16 +198,16 @@
         <img src="icons/files.svg">
     </button>
 
-    <button class="menuBtn" id="filterControlBtn" data-title="فیلتر">
-        <img src="icons/filter.svg">
-    </button>
-
-    <button class="menuBtn" data-title="مشاورین">
+    <button class="menuBtn" id="advisorControlBtn" data-title="مشاورین">
         <img src="icons/group-user.svg">
     </button>
 
-    <button class="menuBtn" id="logoutBtn" data-title="خروج">
-        <img src="icons/logout.svg">
+    <button class="menuBtn" id="dealControlBtn" data-title="معاملات">
+        <img src="icons/deal.svg">
+    </button>
+
+    <button class="menuBtn" id="customersControlBtn" data-title="مشتریان">
+        <img src="icons/customers.svg">
     </button>
 
 </div>
@@ -1327,209 +1326,293 @@
 
 </div>
 
- <!-- ورود - صفحه اول -->
+
+
+
+
+
+<!-- =====================================================
+     صفحه اصلی ورود و ثبت‌نام
+===================================================== -->
 
 <div id="roleEntryScreen" class="role-entry-screen" dir="rtl">
-    <div class="role-entry-box">
 
-        <span class="role-entry-label">سامانه دفتر املاک</span>
+    <div class="welcome-container">
 
-        <h1>خوش آمدید</h1>
+        <!-- برند مشترک -->
 
-        <p>
-            برای ادامه، نوع پنل خود را انتخاب کنید.
-        </p>
+        <div class="welcome-brand">
 
-        <div class="role-entry-options">
+            <div class="welcome-logo">
+                <svg viewBox="0 0 64 64" fill="none">
+                    <path d="M13 54V17L34 7V54M34 54V22L51 30V54"
+                          stroke="currentColor"
+                          stroke-width="4"
+                          stroke-linejoin="round"/>
 
-            <button type="button" id="adminEntryBtn" class="role-entry-card admin-card">
-                <span class="role-entry-icon">⌂</span>
+                    <path d="M21 22L27 19M21 31L27 28M21 40L27 37M41 34L46 36M41 43L46 45"
+                          stroke="currentColor"
+                          stroke-width="3"
+                          stroke-linecap="round"/>
 
-                <span class="role-entry-content">
-                    <strong>پنل مدیریت</strong>
-                </span>
+                    <path d="M7 55H57"
+                          stroke="currentColor"
+                          stroke-width="4"
+                          stroke-linecap="round"/>
+                </svg>
+            </div>
 
-                <span class="role-entry-arrow">←</span>
+            <h1>مدیریت هوشمند <span>املاک</span></h1>
+
+            <div class="welcome-features">
+                <span>ثبت و مدیریت فایل‌ها</span>
+                <i></i>
+                <span>مدیریت مشاورین</span>
+                <i></i>
+                <span>گزارش و معاملات</span>
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             انتخاب نوع ورود
+        ====================================== -->
+
+        <div class="welcome-actions" id="welcomeActions">
+
+            <button type="button"
+                    id="adminEntryBtn"
+                    class="welcome-circle admin-circle">
+
+                <span class="entry-icon office-icon"
+                      aria-hidden="true"></span>
+
+                <strong>ورود مدیر</strong>
+                <small>مدیریت دفتر املاک</small>
+
             </button>
 
-            <button type="button" id="advisorEntryBtn" class="role-entry-card advisor-card">
-                <span class="role-entry-icon">♙</span>
 
-                <span class="role-entry-content">
-                    <strong>پنل مشاور</strong>
-                </span>
+            <button type="button"
+                    id="advisorEntryBtn"
+                    class="welcome-circle advisor-circle">
 
-                <span class="role-entry-arrow">←</span>
+                <span class="entry-icon user-icon"
+                      aria-hidden="true"></span>
+
+                <strong>ورود مشاور</strong>
+                <small>مشاور دفتر املاک</small>
+
             </button>
 
         </div>
 
-    </div>
-</div>
 
-<div id="adminAccessScreen" class="role-entry-screen is-hidden" dir="rtl">
-    <div class="role-entry-box">
+        <!-- =====================================
+             فرم ورود مدیر
+        ====================================== -->
 
-        <button type="button" id="backToRolesBtn" class="entry-back-btn">
-            ← بازگشت
-        </button>
+        <div id="adminInlineLogin"
+             class="admin-inline-login is-hidden">
 
-        <span class="role-entry-label">پنل مدیریت</span>
-
-        <h1>مدیریت دفتر</h1>
-
-        <p>
-            برای اولین‌بار حساب مدیریت بسازید یا وارد حساب قبلی خود شوید.
-        </p>
-
-        <div class="role-entry-options">
-
-            <button type="button" id="createAdminAccountBtn"
-                class="role-entry-card create-admin-card">
-
-                <span class="role-entry-icon">＋</span>
-
-                <span class="role-entry-content">
-                    <strong>ایجاد حساب مدیریت</strong>
-                    <small>ساخت حساب و شروع ثبت دفتر جدید</small>
-                </span>
-
-                <span class="role-entry-arrow">←</span>
+            <button type="button"
+                    id="backToRolesBtn"
+                    class="entry-back-btn">
+                ← بازگشت
             </button>
 
-            <button type="button" id="adminLoginBtn"
-                class="role-entry-card login-admin-card">
+            <h2>ورود به حساب دفتر املاک</h2>
 
-                <span class="role-entry-icon">⌁</span>
+            <form id="adminLoginForm" class="entry-form">
 
-                <span class="role-entry-content">
-                    <strong>ورود به پنل مدیریت</strong>
-                    <small>ورود با نام کاربری و رمز عبور</small>
-                </span>
+                <label class="entry-field">
+                    <span>نام کاربری</span>
 
-                <span class="role-entry-arrow">←</span>
+                    <input
+                        id="adminLoginUsername"
+                        type="text"
+                        autocomplete="username"
+                        placeholder="نام کاربری خود را وارد کنید"
+                        required
+                    >
+                </label>
+
+                <label class="entry-field">
+                    <span>رمز عبور</span>
+
+                    <input
+                        id="adminLoginPassword"
+                        type="password"
+                        autocomplete="current-password"
+                        placeholder="رمز عبور خود را وارد کنید"
+                        required
+                    >
+                </label>
+
+                <div class="login-forgot-row">
+                    <button type="button"
+                            id="forgotAdminPasswordBtn">
+                        فراموشی رمز عبور؟
+                    </button>
+                </div>
+
+                <p id="adminLoginError"
+                   class="entry-form-error"></p>
+
+                <button type="submit" class="entry-submit-btn">
+                    ورود به برنامه
+                    <span>←</span>
+                </button>
+
+            </form>
+
+            <div class="login-register-link">
+                <span>حساب ندارید؟</span>
+
+                <button type="button"
+                        id="inlineAdminRegisterBtn">
+                    ثبت‌نام دفتر املاک
+                </button>
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             فرم ثبت‌نام مدیر
+             همان جایگاه و ساختار پنل ورود
+        ====================================== -->
+
+        <div id="adminRegisterFormPanel"
+             class="admin-inline-login register-inline-login is-hidden">
+
+            <button type="button"
+                    id="backToAdminAccessBtn"
+                    class="entry-back-btn">
+                ← بازگشت
             </button>
+
+            <h2>ایجاد حساب مدیر</h2>
+
+            <form id="adminRegisterForm" class="entry-form">
+
+                <label class="entry-field">
+                    <span>نام کاربری</span>
+
+                    <input
+                        id="adminRegisterUsername"
+                        type="text"
+                        minlength="3"
+                        autocomplete="username"
+                        placeholder="مثلاً amlak_anzali"
+                        required
+                    >
+                </label>
+
+                <label class="entry-field">
+                    <span>رمز عبور</span>
+
+                    <input
+                        id="adminRegisterPassword"
+                        type="password"
+                        minlength="6"
+                        autocomplete="new-password"
+                        placeholder="حداقل ۶ کاراکتر"
+                        required
+                    >
+                </label>
+
+                <label class="entry-field">
+                    <span>تکرار رمز عبور</span>
+
+                    <input
+                        id="adminRegisterPasswordConfirm"
+                        type="password"
+                        minlength="6"
+                        autocomplete="new-password"
+                        placeholder="رمز عبور را دوباره وارد کنید"
+                        required
+                    >
+                </label>
+
+                <p class="register-description">
+                    ابتدا حساب مدیریت خود را بسازید؛
+                    در مرحله بعد اطلاعات دفتر را ثبت می‌کنید.
+                </p>
+
+                <p id="adminRegisterError"
+                   class="entry-form-error"></p>
+
+                <button type="submit" class="entry-submit-btn">
+                    ساخت حساب و ادامه
+                    <span>←</span>
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- =====================================
+             فرم ورود مشاور
+             فعلاً بدون تغییر
+        ====================================== -->
+
+        <div id="advisorInlineLogin"
+             class="admin-inline-login advisor-inline-login is-hidden">
+
+            <button type="button"
+                    id="backToAdvisorRolesBtn"
+                    class="entry-back-btn">
+                ← بازگشت
+            </button>
+
+            <h2>ورود مشاور املاک</h2>
+
+            <form id="advisorLoginForm" class="entry-form">
+
+                <label class="entry-field">
+                    <span>نام کاربری اختصاصی</span>
+
+                    <input
+                        id="advisorLoginUsername"
+                        type="text"
+                        autocomplete="username"
+                        placeholder="نام کاربری اختصاصی خود را وارد کنید"
+                        required
+                    >
+                </label>
+
+                <label class="entry-field">
+                    <span>رمز ورود</span>
+
+                    <input
+                        id="advisorLoginPassword"
+                        type="password"
+                        autocomplete="current-password"
+                        placeholder="رمز ورود خود را وارد کنید"
+                        required
+                    >
+                </label>
+
+                <p id="advisorLoginError"
+                   class="entry-form-error"></p>
+
+                <button type="submit" class="entry-submit-btn">
+                    ورود به پنل مشاور
+                    <span>←</span>
+                </button>
+
+            </form>
 
         </div>
 
     </div>
+
 </div>
 
-<div id="adminRegisterScreen" class="role-entry-screen is-hidden" dir="rtl">
-    <div class="role-entry-box">
 
-        <button type="button" id="backToAdminAccessBtn" class="entry-back-btn">
-            ← بازگشت
-        </button>
-
-        <span class="role-entry-label">حساب مدیریت</span>
-
-        <h1>ایجاد حساب مدیر</h1>
-
-        <p>
-            ابتدا حساب مدیریت خود را بسازید؛ در مرحلهٔ بعد اطلاعات دفتر را ثبت می‌کنید.
-        </p>
-
-        <form id="adminRegisterForm" class="entry-form">
-
-            <label class="entry-field">
-                <span>نام کاربری</span>
-                <input
-                    id="adminRegisterUsername"
-                    type="text"
-                    minlength="3"
-                    autocomplete="username"
-                    placeholder="مثلاً amlak_anzali"
-                    required
-                >
-            </label>
-
-            <label class="entry-field">
-                <span>رمز عبور</span>
-                <input
-                    id="adminRegisterPassword"
-                    type="password"
-                    minlength="6"
-                    autocomplete="new-password"
-                    placeholder="حداقل ۶ کاراکتر"
-                    required
-                >
-            </label>
-
-            <label class="entry-field">
-                <span>تکرار رمز عبور</span>
-                <input
-                    id="adminRegisterPasswordConfirm"
-                    type="password"
-                    minlength="6"
-                    autocomplete="new-password"
-                    placeholder="رمز عبور را دوباره وارد کنید"
-                    required
-                >
-            </label>
-
-            <p id="adminRegisterError" class="entry-form-error"></p>
-
-            <button type="submit" class="entry-submit-btn">
-                ساخت حساب و ادامه
-                <span>←</span>
-            </button>
-
-        </form>
-
-    </div>
-</div>
-
-<div id="adminLoginScreen" class="role-entry-screen is-hidden" dir="rtl">
-    <div class="role-entry-box">
-
-        <button type="button" id="backFromAdminLoginBtn" class="entry-back-btn">
-            ← بازگشت
-        </button>
-
-        <span class="role-entry-label">پنل مدیریت</span>
-
-        <h1>ورود به دفتر من</h1>
-
-        <p>
-            نام کاربری و رمز عبور حساب مدیریت خود را وارد کنید.
-        </p>
-
-        <form id="adminLoginForm" class="entry-form">
-
-            <label class="entry-field">
-                <span>نام کاربری</span>
-                <input
-                    id="adminLoginUsername"
-                    type="text"
-                    autocomplete="username"
-                    placeholder="نام کاربری"
-                    required
-                >
-            </label>
-
-            <label class="entry-field">
-                <span>رمز عبور</span>
-                <input
-                    id="adminLoginPassword"
-                    type="password"
-                    autocomplete="current-password"
-                    placeholder="رمز عبور"
-                    required
-                >
-            </label>
-
-            <p id="adminLoginError" class="entry-form-error"></p>
-
-            <button type="submit" class="entry-submit-btn">
-                ورود به پنل
-                <span>←</span>
-            </button>
-
-        </form>
-
-    </div>
-</div>
 
 <!-- پنل حساب کاربری -->
 <aside id="accountPanel" class="account-panel">
