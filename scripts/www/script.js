@@ -66,11 +66,6 @@ let editingId = null;
 
 let tempMarker = null;
 
-let properties =
-JSON.parse(
-    localStorage.getItem("properties")
-) || [];
-
 let markers = [];
 
 let selectingAgencyLocation = false;
@@ -89,17 +84,7 @@ let selectedImageIndex = 0;
 let galleryImages = [];
 let currentGalleryIndex = 0;
 
-
-// بارگذاری اطلاعات املاک از حافظه مرورگر
-const savedProperties =
-    localStorage.getItem("properties");
-
-if(savedProperties){
-
-    properties =
-        JSON.parse(savedProperties);
-
-}
+let properties = [];
 
 
 // ======================================================
@@ -514,28 +499,36 @@ function renderProperties(data = properties){
                     </button>
 
 
-                    <button
-                        class="edit-btn"
-                        onclick="editProperty(${property.id})">
-                        <img
-                            src="icons/edit.svg"
-                            alt=""
-                            class="popup-action-icon"
-                        >
-                        <span>ویرایش</span>
-                    </button>
+                   <button
+    class="edit-btn ${
+        hasPermission("editAllProperties")
+        ? ""
+        : "is-locked"
+    }"
+    onclick="editProperty(${property.id})">
+    <img
+        src="icons/edit.svg"
+        alt=""
+        class="popup-action-icon"
+    >
+    <span>ویرایش</span>
+</button>
 
 
-                    <button
-                        class="delete-btn"
-                        onclick="deleteProperty(${property.id})">
-                        <img
-                            src="icons/trash.svg"
-                            alt=""
-                            class="popup-action-icon"
-                        >
-                        <span>حذف</span>
-                    </button>
+<button
+    class="delete-btn ${
+        hasPermission("deleteProperties")
+        ? ""
+        : "is-locked"
+    }"
+    onclick="deleteProperty(${property.id})">
+    <img
+        src="icons/trash.svg"
+        alt=""
+        class="popup-action-icon"
+    >
+    <span>حذف</span>
+</button>
 
                 </div>
 
@@ -728,37 +721,43 @@ const overlay =
 
 function getNextFileCode() {
 
-    const savedNextCode =
-    parseInt(
-        localStorage.getItem("nextFileCode") || 1,
+    const currentUser = getCurrentUser();
+
+    if (!currentUser?.agencyId) {
+        return "";
+    }
+
+    const savedNextCode = parseInt(
+        StorageManager.load(
+            "nextFileCode",
+            1,
+            currentUser.agencyId
+        ),
         10
+    ) || 1;
+
+    const highestExistingCode = properties.reduce(
+        (highest, property) => {
+
+            const number = parseInt(
+                String(property.fileCode || "").replace("File-", ""),
+                10
+            );
+
+            return Number.isNaN(number)
+                ? highest
+                : Math.max(highest, number);
+
+        },
+        0
     );
 
-    const highestExistingCode =
-    properties.reduce((highest, property) => {
-
-        const number =
-        parseInt(
-            String(property.fileCode || "")
-            .replace("File-", ""),
-            10
-        );
-
-        return isNaN(number)
-            ? highest
-            : Math.max(highest, number);
-
-    }, 0);
-
-    const nextCode =
-    Math.max(
+    const nextCode = Math.max(
         savedNextCode,
         highestExistingCode + 1
     );
 
-    return "File-" +
-    String(nextCode).padStart(3, "0");
-
+    return "File-" + String(nextCode).padStart(3, "0");
 }
 
 function openForm() {
@@ -1338,6 +1337,13 @@ function deleteProperty(id){
 
 function editProperty(id){
 
+        if (!requirePermission(
+        "editAllProperties",
+        "ویرایش فایل"
+    )) {
+        return;
+    }
+
     const property = properties.find(
         p => p.id === id
     );
@@ -1667,6 +1673,160 @@ function getCurrentUser() {
         localStorage.getItem("currentUser") || "null"
     );
 }
+
+/* =====================================
+   وضعیت دکمه مشاورین بر اساس نقش کاربر
+===================================== */
+
+function updateAdvisorControlState() {
+
+    const advisorControlBtn =
+    document.getElementById("advisorControlBtn");
+
+    if (!advisorControlBtn) {
+        return;
+    }
+
+    const currentUser = getCurrentUser();
+
+    const isAdvisor =
+    currentUser?.role === "advisor";
+
+    advisorControlBtn.classList.toggle(
+        "is-disabled",
+        isAdvisor
+    );
+
+    advisorControlBtn.setAttribute(
+        "aria-disabled",
+        isAdvisor ? "true" : "false"
+    );
+
+    advisorControlBtn.dataset.title =
+    isAdvisor
+        ? "مشاورین ـ غیر فعال"
+        : "مشاورین";
+}
+
+
+/* =========================================
+   لایه مرکزی ذخیره‌سازی اطلاعات دفاتر
+========================================= */
+
+const StorageManager = {
+
+    // ساخت کلید اختصاصی هر دفتر
+    getKey(collection, agencyId = null) {
+
+        const currentUser = getCurrentUser();
+        const id = agencyId || currentUser?.agencyId;
+
+        if (!id) {
+            throw new Error("شناسه دفتر مشخص نیست.");
+        }
+
+        return `anzali:agency:${id}:${collection}`;
+    },
+
+    // خواندن اطلاعات
+    load(collection, fallback = [], agencyId = null) {
+
+        try {
+            const key = this.getKey(collection, agencyId);
+            const savedData = localStorage.getItem(key);
+
+            if (!savedData) return fallback;
+
+            const parsedData = JSON.parse(savedData);
+
+            return parsedData ?? fallback;
+
+        } catch (error) {
+            console.error("خطا در خواندن اطلاعات:", error);
+            return fallback;
+        }
+    },
+
+    // ذخیره اطلاعات
+    save(collection, data, agencyId = null) {
+
+        try {
+            const key = this.getKey(collection, agencyId);
+
+            localStorage.setItem(
+                key,
+                JSON.stringify(data)
+            );
+
+            return true;
+
+        } catch (error) {
+            console.error("خطا در ذخیره اطلاعات:", error);
+            return false;
+        }
+    }
+};
+
+// بارگذاری اختصاصی املاک دفتر فعلی
+function loadOfficeProperties() {
+
+    const currentUser = getCurrentUser();
+
+    if (!currentUser?.agencyId) {
+        properties = [];
+        return;
+    }
+
+    const storageKey = StorageManager.getKey(
+        "properties",
+        currentUser.agencyId
+    );
+
+    // مهاجرت امن اطلاعات قدیمی
+    if (localStorage.getItem(storageKey) === null) {
+
+        let oldProperties = [];
+
+        try {
+            oldProperties = JSON.parse(
+                localStorage.getItem("properties") || "[]"
+            );
+
+            if (!Array.isArray(oldProperties)) {
+                oldProperties = [];
+            }
+
+        } catch (error) {
+            console.error("خطا در خواندن املاک قدیمی:", error);
+        }
+
+        // فقط املاکی که شناسه دفترشان مشخص است منتقل می‌شوند
+        const myOldProperties = oldProperties.filter(
+            property =>
+                String(property.agencyId) ===
+                String(currentUser.agencyId)
+        );
+
+        StorageManager.save(
+            "properties",
+            myOldProperties,
+            currentUser.agencyId
+        );
+    }
+
+    properties = StorageManager.load(
+        "properties",
+        [],
+        currentUser.agencyId
+    );
+
+    if (!Array.isArray(properties)) {
+        properties = [];
+    }
+}
+
+loadOfficeProperties();
+renderProperties();
 
 /* =====================================
    رفتن به موقعیت دفتر خود مدیر
@@ -2631,16 +2791,44 @@ function saveProperty(){
 
     // ثبت فایل جدید
 
-    else{
+   else{
 
         properties.push(property);
 
     }
 
-    localStorage.setItem(
+    if (!StorageManager.save(
         "properties",
-        JSON.stringify(properties)
+        properties,
+        currentUser.agencyId
+    )) {
+        alert("ذخیره فایل انجام نشد.");
+        return;
+    }
+
+
+const currentNumber = parseInt(
+    fileCode.replace("File-", ""),
+    10
+);
+
+if (!Number.isNaN(currentNumber)) {
+
+    const savedNextCode = parseInt(
+        StorageManager.load(
+            "nextFileCode",
+            1,
+            currentUser.agencyId
+        ),
+        10
+    ) || 1;
+
+    StorageManager.save(
+        "nextFileCode",
+        Math.max(savedNextCode, currentNumber + 1),
+        currentUser.agencyId
     );
+}
 
     renderProperties();
 
@@ -2729,6 +2917,66 @@ function changeDetailsImage(direction) {
 
     renderDetailsImage();
 }
+
+/* =====================================
+   بررسی مجوزهای مشاور
+===================================== */
+function getLoggedInAdvisor() {
+
+    const currentUser = getCurrentUser();
+
+    if (currentUser?.role !== "advisor") {
+        return null;
+    }
+
+    const consultants =
+    JSON.parse(
+        localStorage.getItem(
+            "anzali_real_estate_consultants"
+        ) || "[]"
+    );
+
+    return consultants.find(
+        consultant =>
+            String(consultant.id) ===
+            String(currentUser.id) &&
+
+            String(consultant.agencyId) ===
+            String(currentUser.agencyId) &&
+
+            consultant.active !== false
+    ) || null;
+}
+function hasPermission(permission) {
+
+    const currentUser = getCurrentUser();
+
+    // مدیر همیشه دسترسی کامل دارد.
+    if (currentUser?.role === "admin") {
+        return true;
+    }
+
+    const advisor = getLoggedInAdvisor();
+
+    return Array.isArray(advisor?.permissions) &&
+        advisor.permissions.includes(permission);
+}
+function requirePermission(permission, title) {
+
+    if (hasPermission(permission)) {
+        return true;
+    }
+
+    alert(
+        `شما مجوز «${title}» را ندارید.`
+    );
+
+    return false;
+}
+/* =====================================
+   بررسی مجوزهای مشاور
+===================================== */
+
 
 function showPropertyDetails(id) {
 
@@ -3257,6 +3505,13 @@ function closeDetails(){
 
 function deleteProperty(id){
 
+        if (!requirePermission(
+        "deleteProperties",
+        "حذف فایل"
+    )) {
+        return;
+    }
+
     const confirmDelete =
     confirm(
         "آیا از حذف این فایل مطمئن هستید؟"
@@ -3271,10 +3526,16 @@ function deleteProperty(id){
         p => p.id !== id
     );
 
-    localStorage.setItem(
-        "properties",
-        JSON.stringify(properties)
-    );
+    const currentUser = getCurrentUser();
+
+if (!StorageManager.save(
+    "properties",
+    properties,
+    currentUser.agencyId
+)) {
+    alert("حذف فایل ذخیره نشد.");
+    return;
+}
 
     renderProperties();
 
@@ -3555,15 +3816,10 @@ function renderSavedProperties() {
     const propertiesList =
         document.getElementById("savedPropertiesList");
 
-    let properties = [];
-
-    try {
-        properties = JSON.parse(
-            localStorage.getItem("properties")
-        ) || [];
-    } catch (error) {
-        console.error("خطا در خواندن فایل‌های املاک:", error);
-    }
+    const properties = StorageManager.load(
+        "properties",
+        []
+    );
 
     // جدیدترین فایل‌ها در ابتدای فهرست
     properties.sort((a, b) => Number(b.id) - Number(a.id));
@@ -3777,6 +4033,7 @@ document.getElementById("filterPanel");
 const closeFilter =
 document.getElementById("closeFilter");
 
+/*
 filterBtn.addEventListener("click", () => {
 
     filterPanel.classList.add("open");
@@ -3788,6 +4045,7 @@ closeFilter.addEventListener("click", () => {
     filterPanel.classList.remove("open");
 
 });
+*/
 
 document
 .getElementById("resetFilter")
@@ -3886,7 +4144,6 @@ setTimeout(() => {
 /* ========================================
    پنل مدیریت مشاورین
 ======================================== */
-
 // ===== عناصر اصلی پنل =====
 const consultantsPanel = document.getElementById("consultantsPanel");
 const consultantsMenuBtn = document.querySelector(
@@ -4196,20 +4453,36 @@ async function copyTemporaryPassword() {
    نمایش فهرست مشاورین
 ======================================== */
 function renderConsultantsList() {
+
     consultantsListContainer.replaceChildren();
 
-    if (consultants.length === 0) {
+    const currentUser = getCurrentUser();
+
+    // فقط مشاورهای دفترِ مدیر واردشده
+    const officeConsultants =
+    consultants.filter(
+        consultant =>
+            String(consultant.agencyId) ===
+            String(currentUser?.agencyId)
+    );
+
+    if (officeConsultants.length === 0) {
         const emptyMessage = document.createElement("p");
 
-        emptyMessage.className = "consultants-empty-message";
-        emptyMessage.textContent = "هنوز مشاوری ثبت نشده است.";
+        emptyMessage.className =
+        "consultants-empty-message";
 
-        consultantsListContainer.appendChild(emptyMessage);
+        emptyMessage.textContent =
+        "هنوز مشاوری برای این دفتر ثبت نشده است.";
+
+        consultantsListContainer.appendChild(
+            emptyMessage
+        );
 
         return;
     }
 
-    consultants.forEach(consultant => {
+    officeConsultants.forEach(consultant => {
         const card = document.createElement("div");
 
         card.className = "consultant-card";
@@ -4217,7 +4490,9 @@ function renderConsultantsList() {
         const fullName = [
             consultant.firstName,
             consultant.lastName
-        ].filter(Boolean).join(" ");
+        ]
+        .filter(Boolean)
+        .join(" ");
 
         const name = escapeConsultantHTML(
             fullName || "بدون نام"
@@ -4251,22 +4526,30 @@ function renderConsultantsList() {
                     type="button"
                     class="edit-consultant-btn"
                     data-action="edit"
-                >ویرایش</button>
+                >
+                    ویرایش
+                </button>
 
                 <button
                     type="button"
                     class="delete-consultant-btn"
                     data-action="delete"
-                >حذف</button>
+                >
+                    حذف
+                </button>
             </div>
         `;
 
-        card.querySelector('[data-action="edit"]').addEventListener(
+        card.querySelector(
+            '[data-action="edit"]'
+        ).addEventListener(
             "click",
             () => editConsultant(consultant.id)
         );
 
-        card.querySelector('[data-action="delete"]').addEventListener(
+        card.querySelector(
+            '[data-action="delete"]'
+        ).addEventListener(
             "click",
             () => deleteConsultant(consultant.id)
         );
@@ -4284,6 +4567,16 @@ consultantForm.addEventListener("submit", event => {
     const lastName = lastNameInput.value.trim();
     const phone = phoneInput.value.trim();
     const username = usernameInput.value.trim();
+
+    const currentUser = getCurrentUser();
+
+if (
+    currentUser?.role !== "admin" ||
+    !currentUser?.agencyId
+) {
+    alert("فقط مدیر دارای دفتر می‌تواند مشاور ثبت کند.");
+    return;
+}
 
     if (!firstName || !lastName || !phone || !username) {
         alert("لطفاً تمام فیلدهای ضروری را تکمیل کنید.");
@@ -4321,6 +4614,27 @@ consultantForm.addEventListener("submit", event => {
         )
         : null;
 
+        const manualPassword =
+document.getElementById("consultantManualPassword")
+.value
+.trim();
+
+const advisorPassword =
+manualPassword ||
+generatedTemporaryPassword ||
+(existingConsultant
+    ? existingConsultant.password ||
+      existingConsultant.temporaryPassword || ""
+    : "");
+
+if (advisorPassword.length < 6) {
+    alert(
+        "برای مشاور رمز عبور حداقل ۶ کاراکتری وارد یا تولید کنید."
+    );
+
+    return;
+}
+
     const consultantData = {
         id: existingConsultant
             ? existingConsultant.id
@@ -4336,13 +4650,14 @@ consultantForm.addEventListener("submit", event => {
         phone,
         username,
 
+        role: "advisor",
+        agencyId: currentUser.agencyId,
+        active: existingConsultant?.active !== false,
+        password: advisorPassword,
+
         permissions: getConsultantPermissions(),
 
-        // حفظ رمز موقت تولیدشده در این فرم
-        temporaryPassword: generatedTemporaryPassword ||
-            (existingConsultant
-                ? existingConsultant.temporaryPassword || ""
-                : ""),
+        temporaryPassword: advisorPassword,
 
         createdAt: existingConsultant
             ? existingConsultant.createdAt
@@ -4380,8 +4695,14 @@ consultantForm.addEventListener("submit", event => {
    باز کردن فرم ویرایش
 ======================================== */
 function editConsultant(id) {
+
+    const currentUser = getCurrentUser();
+
     const consultant = consultants.find(
-        item => item.id === id
+        item =>
+            item.id === id &&
+            String(item.agencyId) ===
+            String(currentUser?.agencyId)
     );
 
     if (!consultant) {
@@ -4406,19 +4727,30 @@ function editConsultant(id) {
     phoneInput.value = consultant.phone || "";
     usernameInput.value = consultant.username || "";
 
-    setConsultantPermissions(consultant.permissions || []);
+    setConsultantPermissions(
+        consultant.permissions || []
+    );
 
     clearTemporaryPassword();
 
-    consultantFormTitle.textContent = "ویرایش اطلاعات مشاور";
-    saveConsultantBtn.lastElementChild.textContent = "ذخیره تغییرات";
+    consultantFormTitle.textContent =
+    "ویرایش اطلاعات مشاور";
+
+    saveConsultantBtn.lastElementChild.textContent =
+    "ذخیره تغییرات";
 }
 /* ========================================
    حذف مشاور
 ======================================== */
 function deleteConsultant(id) {
+
+    const currentUser = getCurrentUser();
+
     const consultant = consultants.find(
-        item => item.id === id
+        item =>
+            item.id === id &&
+            String(item.agencyId) ===
+            String(currentUser?.agencyId)
     );
 
     if (!consultant) {
@@ -4429,7 +4761,9 @@ function deleteConsultant(id) {
     const fullName = [
         consultant.firstName,
         consultant.lastName
-    ].filter(Boolean).join(" ");
+    ]
+    .filter(Boolean)
+    .join(" ");
 
     const confirmed = confirm(
         `آیا از حذف مشاور «${fullName}» مطمئن هستید؟`
@@ -4459,6 +4793,17 @@ function deleteConsultant(id) {
 // باز کردن پنل مدیریت مشاورین
 if (consultantsMenuBtn) {
     consultantsMenuBtn.addEventListener("click", () => {
+
+        const currentUser = getCurrentUser();
+
+        if (currentUser?.role !== "admin") {
+            alert(
+                "مدیریت مشاورین برای حساب مشاور غیر فعال است."
+            );
+
+            return;
+        }
+
         consultantsPanel.classList.add("active");
         showConsultantsHome();
     });
@@ -4507,160 +4852,536 @@ document.addEventListener("keydown", event => {
 
 
 
+/* =================================
+   بخش معاملات و مشتریان ـ به‌زودی
+================================= */
 
+const dealControlBtn = document.getElementById("dealControlBtn");
+const customersControlBtn = document.getElementById("customersControlBtn");
 
-const entryRoleScreen =
-    document.getElementById("roleEntryScreen");
-
-const entryAdminScreen =
-    document.getElementById("adminAccessScreen");
-
-document.getElementById("adminEntryBtn")
-.addEventListener("click", () => {
-    entryRoleScreen.classList.add("is-hidden");
-    entryAdminScreen.classList.remove("is-hidden");
+dealControlBtn?.addEventListener("click", () => {
+    alert("بخش معاملات به‌زودی فعال خواهد شد.");
 });
 
-document.getElementById("backToRolesBtn")
-.addEventListener("click", () => {
-    entryAdminScreen.classList.add("is-hidden");
-    entryRoleScreen.classList.remove("is-hidden");
+customersControlBtn?.addEventListener("click", () => {
+    alert("بخش مشتریان به‌زودی فعال خواهد شد.");
 });
 
 
 
 
 
-const adminRegisterScreen =
-    document.getElementById("adminRegisterScreen");
 
+
+/* =====================================================
+   بخش ۱ ـ صفحه اصلی ورود و انتخاب نوع ورود
+===================================================== */
+
+const entryRoleScreen = document.getElementById("roleEntryScreen");
+const welcomeActions = document.getElementById("welcomeActions");
+
+const adminInlineLogin = document.getElementById("adminInlineLogin");
+const adminRegisterFormPanel = document.getElementById("adminRegisterFormPanel");
+
+const adminEntryBtn = document.getElementById("adminEntryBtn");
+const backToRolesBtn = document.getElementById("backToRolesBtn");
+
+const inlineAdminRegisterBtn = document.getElementById("inlineAdminRegisterBtn");
+const backToAdminAccessBtn = document.getElementById("backToAdminAccessBtn");
+
+let entryTransitionRunning = false;
+const transitionDuration = 320;
+
+
+// =====================================
+// نمایش یک پنل با انیمیشن
+// =====================================
+function showEntryPanel(panel) {
+
+    panel.classList.remove("is-hidden");
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            panel.classList.add("is-visible");
+        });
+    });
+
+}
+
+// =====================================
+// مخفی کردن یک پنل با انیمیشن
+// =====================================
+function hideEntryPanel(panel, callback) {
+
+    panel.classList.remove("is-visible");
+
+    setTimeout(() => {
+
+        panel.classList.add("is-hidden");
+
+        if (typeof callback === "function") {
+            callback();
+        }
+
+    }, transitionDuration);
+
+}
+
+// =====================================
+// ورود به فرم مدیر
+// =====================================
+if (adminEntryBtn) {
+
+    adminEntryBtn.addEventListener("click", () => {
+
+        if (entryTransitionRunning) return;
+
+        entryTransitionRunning = true;
+
+        showEntryPanel(adminInlineLogin);
+
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+
+                welcomeActions.classList.add("is-leaving");
+
+                setTimeout(() => {
+
+                    welcomeActions.classList.add("is-hidden");
+                    entryTransitionRunning = false;
+
+                }, transitionDuration);
+
+            });
+        });
+
+    });
+
+}
+
+// =====================================
+// بازگشت از ورود مدیر به انتخاب نقش
+// =====================================
+if (backToRolesBtn) {
+
+    backToRolesBtn.addEventListener("click", () => {
+
+        if (entryTransitionRunning) return;
+
+        entryTransitionRunning = true;
+
+        hideEntryPanel(adminInlineLogin, () => {
+
+            welcomeActions.classList.remove("is-hidden");
+            welcomeActions.classList.remove("is-leaving");
+
+            entryTransitionRunning = false;
+
+        });
+
+    });
+
+}
+
+/* =====================================================
+   بخش ۲ ـ ثبت‌نام دفتر املاک
+===================================================== */
 const adminRegisterForm =
     document.getElementById("adminRegisterForm");
 
 const adminRegisterError =
     document.getElementById("adminRegisterError");
 
-document.getElementById("createAdminAccountBtn")
-.addEventListener("click", () => {
-    entryAdminScreen.classList.add("is-hidden");
-    adminRegisterScreen.classList.remove("is-hidden");
+
+// =====================================
+// رفتن از ورود مدیر به ثبت‌نام
+// =====================================
+if (inlineAdminRegisterBtn) {
+
+    inlineAdminRegisterBtn.addEventListener("click", () => {
+
+        if (entryTransitionRunning) return;
+
+        entryTransitionRunning = true;
+
+        hideEntryPanel(adminInlineLogin, () => {
+
+            showEntryPanel(adminRegisterFormPanel);
+
+            setTimeout(() => {
+                entryTransitionRunning = false;
+            }, transitionDuration);
+
+        });
+
+    });
+
+}
+
+// =====================================
+// بازگشت از ثبت‌نام به ورود مدیر
+// =====================================
+if (backToAdminAccessBtn) {
+
+    backToAdminAccessBtn.addEventListener("click", () => {
+
+        if (entryTransitionRunning) return;
+
+        entryTransitionRunning = true;
+
+        hideEntryPanel(adminRegisterFormPanel, () => {
+
+            showEntryPanel(adminInlineLogin);
+
+            setTimeout(() => {
+                entryTransitionRunning = false;
+            }, transitionDuration);
+
+        });
+
+    });
+
+}
+
+// =====================================
+// ثبت‌نام مدیر
+// =====================================
+if (adminRegisterForm) {
+
+    adminRegisterForm.addEventListener("submit", (event) => {
+
+        event.preventDefault();
+
+        const username =
+            document.getElementById("adminRegisterUsername")
+                .value.trim();
+
+        const password =
+            document.getElementById("adminRegisterPassword")
+                .value;
+
+        const passwordConfirm =
+            document.getElementById("adminRegisterPasswordConfirm")
+                .value;
+
+        adminRegisterError.textContent = "";
+
+
+        // بررسی نام کاربری
+        if (username.length < 3) {
+
+            adminRegisterError.textContent =
+                "نام کاربری باید حداقل ۳ کاراکتر داشته باشد.";
+
+            return;
+        }
+
+
+        // بررسی طول رمز عبور
+        if (password.length < 6) {
+
+            adminRegisterError.textContent =
+                "رمز عبور باید حداقل ۶ کاراکتر داشته باشد.";
+
+            return;
+        }
+
+
+        // بررسی تکرار رمز عبور
+        if (password !== passwordConfirm) {
+
+            adminRegisterError.textContent =
+                "تکرار رمز عبور با رمز عبور یکسان نیست.";
+
+            return;
+        }
+
+
+        // دریافت کاربران ذخیره‌شده
+        let users = [];
+
+        try {
+
+            users = JSON.parse(
+                localStorage.getItem("users") || "[]"
+            );
+
+            if (!Array.isArray(users)) {
+                users = [];
+            }
+
+        } catch (error) {
+
+            adminRegisterError.textContent =
+                "خطا در خواندن اطلاعات کاربران.";
+
+            return;
+        }
+
+
+        // بررسی تکراری نبودن نام کاربری
+        const usernameExists = users.some(user =>
+            String(user.username || "").toLowerCase() ===
+            username.toLowerCase()
+        );
+
+        if (usernameExists) {
+
+            adminRegisterError.textContent =
+                "این نام کاربری قبلاً استفاده شده است.";
+
+            return;
+        }
+
+
+        // ساخت حساب مدیر جدید
+        const newAdmin = {
+            id: Date.now(),
+            username: username,
+            password: password,
+            role: "admin",
+            agencyId: null,
+            active: true
+        };
+
+
+        // افزودن مدیر به لیست کاربران
+        users.push(newAdmin);
+
+
+        // ذخیره حساب مدیر و ایجاد نشست
+        try {
+
+            localStorage.setItem(
+                "users",
+                JSON.stringify(users)
+            );
+
+            localStorage.setItem(
+                "currentUser",
+                JSON.stringify({
+                    id: newAdmin.id,
+                    username: newAdmin.username,
+                    role: newAdmin.role,
+                    agencyId: null
+                })
+            );
+
+            updateAdvisorControlState();
+
+        } catch (error) {
+
+            adminRegisterError.textContent =
+                "ذخیره اطلاعات انجام نشد. فضای ذخیره‌سازی را بررسی کنید.";
+
+            return;
+        }
+
+
+        // پاک کردن فرم
+adminRegisterForm.reset();
+
+// بستن پنل ثبت‌نام
+adminRegisterFormPanel.classList.remove("is-visible");
+adminRegisterFormPanel.classList.add("is-hidden");
+
+// مخفی کردن صفحه ورود
+adminInlineLogin?.classList.remove("is-visible");
+adminInlineLogin?.classList.add("is-hidden");
+
+welcomeActions?.classList.remove("is-leaving");
+welcomeActions?.classList.add("is-hidden");
+
+entryRoleScreen?.classList.add("is-hidden");
+
+// آماده‌سازی فرم ثبت اطلاعات دفتر
+if (typeof resetAgencyForm === "function") {
+    resetAgencyForm();
+}
+
+editingAgencyId = null;
+
+// نمایش فرم ثبت دفتر
+const agencySetup = document.getElementById("agencySetup");
+const overlay = document.getElementById("overlay");
+
+if (agencySetup) {
+    agencySetup.style.display = "flex";
+}
+
+if (overlay) {
+    overlay.style.display = "block";
+}
+
+    });
+
+}
+
+/* =====================================
+   ورود به پنل مشاور
+===================================== */
+
+const advisorInlineLogin =
+document.getElementById("advisorInlineLogin");
+
+const advisorEntryBtn =
+document.getElementById("advisorEntryBtn");
+
+const backToAdvisorRolesBtn =
+document.getElementById("backToAdvisorRolesBtn");
+
+const advisorLoginForm =
+document.getElementById("advisorLoginForm");
+
+const advisorLoginError =
+document.getElementById("advisorLoginError");
+
+
+advisorEntryBtn?.addEventListener("click", () => {
+
+    if (entryTransitionRunning) return;
+
+    entryTransitionRunning = true;
+
+    showEntryPanel(advisorInlineLogin);
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+
+            welcomeActions.classList.add("is-leaving");
+
+            setTimeout(() => {
+                welcomeActions.classList.add("is-hidden");
+                entryTransitionRunning = false;
+            }, transitionDuration);
+
+        });
+    });
 });
 
-document.getElementById("backToAdminAccessBtn")
-.addEventListener("click", () => {
-    adminRegisterScreen.classList.add("is-hidden");
-    entryAdminScreen.classList.remove("is-hidden");
+
+backToAdvisorRolesBtn?.addEventListener("click", () => {
+
+    if (entryTransitionRunning) return;
+
+    entryTransitionRunning = true;
+
+    hideEntryPanel(advisorInlineLogin, () => {
+
+        welcomeActions.classList.remove("is-hidden");
+        welcomeActions.classList.remove("is-leaving");
+
+        entryTransitionRunning = false;
+    });
 });
 
-adminRegisterForm.addEventListener("submit", (event) => {
+
+advisorLoginForm?.addEventListener("submit", (event) => {
     event.preventDefault();
 
     const username =
-        document.getElementById("adminRegisterUsername")
-        .value
-        .trim();
+    document.getElementById("advisorLoginUsername")
+    .value
+    .trim();
 
     const password =
-        document.getElementById("adminRegisterPassword")
-        .value;
+    document.getElementById("advisorLoginPassword")
+    .value;
 
-    const passwordConfirm =
-        document.getElementById("adminRegisterPasswordConfirm")
-        .value;
+    advisorLoginError.textContent = "";
 
-    adminRegisterError.textContent = "";
+    const consultants =
+JSON.parse(
+    localStorage.getItem(
+        "anzali_real_estate_consultants"
+    ) || "[]"
+);
 
-    if (username.length < 3) {
-        adminRegisterError.textContent =
-            "نام کاربری باید حداقل ۳ کاراکتر داشته باشد.";
+const advisorUser =
+consultants.find(consultant =>
+    consultant.active !== false &&
+    String(consultant.username || "")
+        .toLowerCase() === username.toLowerCase() &&
+    (
+        consultant.password ||
+        consultant.temporaryPassword
+    ) === password
+);
+
+    if (!advisorUser) {
+        advisorLoginError.textContent =
+        "نام کاربری یا رمز عبور درست نیست.";
         return;
     }
 
-    if (password.length < 6) {
-        adminRegisterError.textContent =
-            "رمز عبور باید حداقل ۶ کاراکتر داشته باشد.";
+    if (!advisorUser.agencyId) {
+        advisorLoginError.textContent =
+        "این حساب به هیچ دفتری متصل نشده است.";
         return;
     }
-
-    if (password !== passwordConfirm) {
-        adminRegisterError.textContent =
-            "تکرار رمز عبور با رمز عبور یکسان نیست.";
-        return;
-    }
-
-    const users =
-        JSON.parse(localStorage.getItem("users")) || [];
-
-    const usernameExists = users.some(user =>
-        user.username.toLowerCase() === username.toLowerCase()
-    );
-
-    if (usernameExists) {
-        adminRegisterError.textContent =
-            "این نام کاربری قبلاً استفاده شده است.";
-        return;
-    }
-
-    const newAdmin = {
-        id: Date.now(),
-        username: username,
-        password: password,
-        role: "admin",
-        agencyId: null,
-        active: true
-    };
-
-    users.push(newAdmin);
-
-    localStorage.setItem(
-        "users",
-        JSON.stringify(users)
-    );
 
     localStorage.setItem(
         "currentUser",
         JSON.stringify({
-            id: newAdmin.id,
-            username: newAdmin.username,
-            role: newAdmin.role,
-            agencyId: null
+            id: advisorUser.id,
+            username: advisorUser.username,
+            role: advisorUser.role,
+            agencyId: advisorUser.agencyId
         })
     );
 
-    adminRegisterForm.reset();
+    advisorLoginForm.reset();
 
-    adminRegisterScreen.classList.add("is-hidden");
+    hideEntryPanel(advisorInlineLogin, () => {
 
-    if (typeof resetAgencyForm === "function") {
-        resetAgencyForm();
-    }
+        entryRoleScreen?.classList.add("is-hidden");
 
-    resetAgencyForm();
-
-    editingAgencyId = null;
-
-    document.getElementById("agencySetup").style.display = "flex";
-    document.getElementById("overlay").style.display = "block";
+        // اطلاعات دفتر مشاور از حافظهٔ همان دفتر خوانده می‌شود.
+        loadOfficeProperties();
+        loadAgencies();
+        renderProperties();
+        zoomToMyOffice(false);
+    });
 });
 
 
-/* =====================================
-   بررسی ورود قبلی مدیر و هدایت به دفتر
-===================================== */
 
-function restoreAdminSession() {
+
+/* =====================================================
+   بخش ۳ ـ بازیابی نشست قبلی کاربر
+===================================================== */
+function restoreUserSession() {
+
     const currentUser = getCurrentUser();
 
-    if (!currentUser || currentUser.role !== "admin") {
+    updateAdvisorControlState();
+
+    if (!currentUser) {
         return;
     }
 
-    entryRoleScreen.classList.add("is-hidden");
-    entryAdminScreen.classList.add("is-hidden");
-    adminRegisterScreen.classList.add("is-hidden");
+    // مخفی‌کردن صفحه‌ها و فرم‌های ورود
+    entryRoleScreen?.classList.add("is-hidden");
 
+    welcomeActions?.classList.add("is-hidden");
+    welcomeActions?.classList.remove("is-leaving");
+
+    adminInlineLogin?.classList.add("is-hidden");
+    adminInlineLogin?.classList.remove("is-visible");
+
+    const adminRegisterFormPanel =
+        document.getElementById("adminRegisterFormPanel");
+
+    adminRegisterFormPanel?.classList.add("is-hidden");
+    adminRegisterFormPanel?.classList.remove("is-visible");
+
+    advisorInlineLogin?.classList.add("is-hidden");
+    advisorInlineLogin?.classList.remove("is-visible");
+
+
+    // دریافت دفترها
     const agencies =
-        JSON.parse(localStorage.getItem("agencies")) || [];
+        JSON.parse(localStorage.getItem("agencies") || "[]");
 
     const hasRegisteredAgency =
         currentUser.agencyId &&
@@ -4668,170 +5389,222 @@ function restoreAdminSession() {
             agency => agency.id === currentUser.agencyId
         );
 
-    if (!hasRegisteredAgency) {
-        document.getElementById("agencySetup").style.display = "flex";
-        document.getElementById("overlay").style.display = "block";
-    }
 
-    if (hasRegisteredAgency) {
-      zoomToMyOffice(false);
-    }
-}
+    // مدیرِ بدون دفتر باید فرم ثبت دفتر را ببیند.
+    if (
+        currentUser.role === "admin" &&
+        !hasRegisteredAgency
+    ) {
+        const agencySetup =
+            document.getElementById("agencySetup");
 
-restoreAdminSession();
+        const overlay =
+            document.getElementById("overlay");
 
-
-/* =====================================
-   خروج از حساب کاربری
-===================================== */
-
-const logoutBtn =
-document.getElementById("logoutBtn");
-
-if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
-
-        const shouldLogout =
-        confirm("آیا مطمئن هستید که می‌خواهید خارج شوید؟");
-
-        if (!shouldLogout) {
-            return;
+        if (agencySetup) {
+            agencySetup.style.display = "flex";
         }
 
-        // فقط نشست ورود پاک می‌شود؛
-        // دفترها، فایل‌ها و حساب‌ها باقی می‌مانند.
-        localStorage.removeItem("currentUser");
-
-        resetAgencyForm();
-        resetPropertyForm();
-
-        // Markerها و فایل‌های حساب قبلی از نقشه پاک می‌شوند.
-        loadAgencies();
-        renderProperties();
-
-        const agencySetupPanel =
-        document.getElementById("agencySetup");
-
-        const pageOverlay =
-        document.getElementById("overlay");
-
-        if (agencySetupPanel) {
-            agencySetupPanel.style.display = "none";
+        if (overlay) {
+            overlay.style.display = "block";
         }
-
-        if (pageOverlay) {
-            pageOverlay.style.display = "none";
-        }
-
-        // بازگشت به صفحهٔ اول ورود
-        entryAdminScreen.classList.add("is-hidden");
-        adminRegisterScreen.classList.add("is-hidden");
-        entryRoleScreen.classList.remove("is-hidden");
-    });
-}
-
-/* =====================================
-   ورود به پنل مدیریت
-===================================== */
-
-const adminLoginScreen =
-document.getElementById("adminLoginScreen");
-
-const adminLoginForm =
-document.getElementById("adminLoginForm");
-
-const adminLoginError =
-document.getElementById("adminLoginError");
-
-document.getElementById("adminLoginBtn")
-.addEventListener("click", () => {
-    entryAdminScreen.classList.add("is-hidden");
-    adminLoginScreen.classList.remove("is-hidden");
-});
-
-document.getElementById("backFromAdminLoginBtn")
-.addEventListener("click", () => {
-    adminLoginScreen.classList.add("is-hidden");
-    entryAdminScreen.classList.remove("is-hidden");
-});
-
-adminLoginForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    const username =
-    document.getElementById("adminLoginUsername")
-    .value
-    .trim();
-
-    const password =
-    document.getElementById("adminLoginPassword")
-    .value;
-
-    adminLoginError.textContent = "";
-
-    const users =
-    JSON.parse(localStorage.getItem("users")) || [];
-
-    const adminUser =
-    users.find(user =>
-        user.role === "admin" &&
-        user.active !== false &&
-        user.username.toLowerCase() === username.toLowerCase() &&
-        user.password === password
-    );
-
-    if (!adminUser) {
-        adminLoginError.textContent =
-        "نام کاربری یا رمز عبور درست نیست.";
 
         return;
     }
 
-    localStorage.setItem(
-        "currentUser",
-        JSON.stringify({
+
+    // مشاورِ بدون دفتر معتبر وارد نمی‌شود.
+    if (!hasRegisteredAgency) {
+        localStorage.removeItem("currentUser");
+
+        entryRoleScreen?.classList.remove("is-hidden");
+        welcomeActions?.classList.remove("is-hidden");
+
+        return;
+    }
+
+
+    // ورود معتبر مدیر یا مشاور
+    loadOfficeProperties();
+    loadAgencies();
+    renderProperties();
+    zoomToMyOffice(false);
+}
+
+restoreUserSession();
+
+/* =====================================================
+   بخش ۴ ـ خروج از حساب کاربری
+===================================================== */
+
+function handleLogout() {
+
+    const shouldLogout = confirm(
+        "آیا مطمئن هستید که می‌خواهید خارج شوید؟"
+    );
+
+    if (!shouldLogout) return;
+
+    // حذف نشست کاربر
+    localStorage.removeItem("currentUser");
+
+    updateAdvisorControlState();
+
+    // پاک‌سازی اطلاعات موقت حساب قبلی
+    properties = [];
+
+    if (typeof resetAgencyForm === "function") {
+        resetAgencyForm();
+    }
+
+    if (typeof resetPropertyForm === "function") {
+        resetPropertyForm();
+    }
+
+    // پاک‌سازی نشانگرهای املاک
+    renderProperties([]);
+
+    // بستن پنل‌ها
+    accountPanel?.classList.remove("open");
+
+    const agencySetup = document.getElementById("agencySetup");
+    const overlay = document.getElementById("overlay");
+
+    if (agencySetup) {
+        agencySetup.style.display = "none";
+    }
+
+    if (overlay) {
+        overlay.style.display = "none";
+    }
+
+    // بازگرداندن فرم‌های ورود به حالت اولیه
+    adminInlineLogin?.classList.remove("is-visible");
+    adminInlineLogin?.classList.add("is-hidden");
+
+    adminRegisterFormPanel?.classList.remove("is-visible");
+    adminRegisterFormPanel?.classList.add("is-hidden");
+
+    welcomeActions?.classList.remove("is-leaving");
+    welcomeActions?.classList.remove("is-hidden");
+
+    // نمایش صفحه ورود
+    entryRoleScreen?.classList.remove("is-hidden");
+}
+
+/* =====================================================
+   بخش ۵ ـ ورود مدیر به حساب دفتر املاک
+===================================================== */
+
+const adminLoginForm =
+    document.getElementById("adminLoginForm");
+
+const adminLoginError =
+    document.getElementById("adminLoginError");
+
+if (adminLoginForm) {
+
+    adminLoginForm.addEventListener("submit", (event) => {
+
+        event.preventDefault();
+
+        const username =
+            document.getElementById("adminLoginUsername")
+            .value.trim();
+
+        const password =
+            document.getElementById("adminLoginPassword")
+            .value;
+
+        adminLoginError.textContent = "";
+
+        const users =
+            JSON.parse(localStorage.getItem("users")) || [];
+
+        const adminUser =
+            users.find(user =>
+                user.role === "admin" &&
+                user.active !== false &&
+                user.username.toLowerCase() === username.toLowerCase() &&
+                user.password === password
+            );
+
+        // بررسی اطلاعات ورود
+        if (!adminUser) {
+            adminLoginError.textContent =
+                "نام کاربری یا رمز عبور درست نیست.";
+            return;
+        }
+
+        // ذخیره اطلاعات نشست مدیر
+        const currentUser = {
             id: adminUser.id,
             username: adminUser.username,
             role: adminUser.role,
             agencyId: adminUser.agencyId
-        })
-    );
+        };
 
-    adminLoginForm.reset();
+        localStorage.setItem(
+            "currentUser",
+            JSON.stringify(currentUser)
+        );
 
-    adminLoginScreen.classList.add("is-hidden");
-    entryAdminScreen.classList.add("is-hidden");
-    entryRoleScreen.classList.add("is-hidden");
+        adminLoginForm.reset();
 
-    if (!adminUser.agencyId) {
-        editingAgencyId = null;
+        // مخفی کردن صفحه ورود و ثبت‌نام
+        adminInlineLogin?.classList.remove("is-visible");
+        adminInlineLogin?.classList.add("is-hidden");
 
-        document.getElementById("agencySetup").style.display = "flex";
-        document.getElementById("overlay").style.display = "block";
+        adminRegisterFormPanel?.classList.remove("is-visible");
+        adminRegisterFormPanel?.classList.add("is-hidden");
 
-        return;
-    }
+       
 
-    loadAgencies();
-    zoomToMyOffice(false);
-});
+        welcomeActions?.classList.remove("is-leaving");
+        welcomeActions?.classList.add("is-hidden");
 
+        entryRoleScreen?.classList.add("is-hidden");
 
-// ==============================
-// ACCOUNT PANEL
-// ==============================
+        // اگر مدیر هنوز دفتری ثبت نکرده باشد
+        if (!adminUser.agencyId) {
 
+            editingAgencyId = null;
+
+            document.getElementById("agencySetup").style.display = "flex";
+            document.getElementById("overlay").style.display = "block";
+
+            return;
+        }
+
+        // بارگذاری اطلاعات اختصاصی دفتر
+        loadOfficeProperties();
+
+        // بارگذاری دفاتر
+        loadAgencies();
+
+        // نمایش املاک روی نقشه
+        renderProperties();
+
+        // انتقال نقشه به موقعیت دفتر
+        zoomToMyOffice(false);
+
+    });
+}
+
+/* =====================================================
+   بخش ۶ ـ پنل اطلاعات حساب کاربری
+===================================================== */
 const accountMenuBtn =
-document.getElementById("accountMenuBtn");
+    document.getElementById("accountMenuBtn");
 
 const accountPanel =
-document.getElementById("accountPanel");
+    document.getElementById("accountPanel");
 
 const closeAccountPanel =
-document.getElementById("closeAccountPanel");
+    document.getElementById("closeAccountPanel");
 
 const accountLogoutBtn =
-document.getElementById("accountLogoutBtn");
+    document.getElementById("accountLogoutBtn");
 
 
 function renderAccountPanel() {
@@ -4841,35 +5614,33 @@ function renderAccountPanel() {
     if (!currentUser) return;
 
     const agencies =
-    JSON.parse(
-        localStorage.getItem("agencies") || "[]"
-    );
+        JSON.parse(localStorage.getItem("agencies") || "[]");
 
     const myOffice =
-    agencies.find(
-        agency => agency.id === currentUser.agencyId
-    );
+        agencies.find(
+            agency => agency.id === currentUser.agencyId
+        );
 
-    document.getElementById("accountUsername")
-    .textContent = currentUser.username || "بدون نام کاربری";
+    document.getElementById("accountUsername").textContent =
+        currentUser.username || "بدون نام کاربری";
 
-    document.getElementById("accountOfficeName")
-    .textContent = myOffice?.name || "دفتری ثبت نشده";
+    document.getElementById("accountOfficeName").textContent =
+        myOffice?.name || "دفتری ثبت نشده";
 
-    document.getElementById("accountOfficeManager")
-    .textContent = myOffice?.manager || "ثبت نشده";
+    document.getElementById("accountOfficeManager").textContent =
+        myOffice?.manager || "ثبت نشده";
 
-    document.getElementById("accountOfficePhone")
-    .textContent = myOffice?.phone || "ثبت نشده";
+    document.getElementById("accountOfficePhone").textContent =
+        myOffice?.phone || "ثبت نشده";
 
-    document.getElementById("accountOfficeAddress")
-    .textContent = myOffice?.address || "ثبت نشده";
+    document.getElementById("accountOfficeAddress").textContent =
+        myOffice?.address || "ثبت نشده";
 
     const logo =
-    document.getElementById("accountOfficeLogo");
+        document.getElementById("accountOfficeLogo");
 
     const placeholder =
-    document.getElementById("accountOfficePlaceholder");
+        document.getElementById("accountOfficePlaceholder");
 
     if (myOffice?.logo) {
 
@@ -4883,295 +5654,410 @@ function renderAccountPanel() {
         placeholder.style.display = "block";
 
     }
+}
+// باز کردن پنل حساب
+if (accountMenuBtn && accountPanel) {
+
+    accountMenuBtn.addEventListener("click", () => {
+
+        renderAccountPanel();
+
+        accountPanel.classList.add("open");
+
+    });
+
+}
+// بستن پنل حساب
+if (closeAccountPanel && accountPanel) {
+
+    closeAccountPanel.addEventListener("click", () => {
+
+        accountPanel.classList.remove("open");
+
+    });
 
 }
 
+// خروج مستقیم از پنل حساب
+if (accountLogoutBtn) {
+    accountLogoutBtn.addEventListener("click", handleLogout);
+}
 
-// باز کردن پنل
-
-accountMenuBtn.addEventListener("click", () => {
-
-    renderAccountPanel();
-
-    accountPanel.classList.add("open");
-
-});
-
-
-// بستن پنل
-
-closeAccountPanel.addEventListener("click", () => {
-
-    accountPanel.classList.remove("open");
-
-});
-
-
-// خروج با همان منطق قبلی پروژه
-
-accountLogoutBtn.addEventListener("click", () => {
-
-    accountPanel.classList.remove("open");
-
-    document.getElementById("logoutBtn").click();
-
-});
-
-
-// بستن با کلید Escape
-
+// بستن پنل با کلید Escape
 document.addEventListener("keydown", event => {
 
-    if (event.key === "Escape") {
+    if (event.key === "Escape" && accountPanel) {
+
         accountPanel.classList.remove("open");
+
     }
 
 });
 
+/* =====================================================
+   بخش ۷ ـ تغییر رمز عبور حساب کاربری
+===================================================== */
+const openPasswordForm =
+    document.getElementById("openPasswordForm");
 
-// ===== تغییر رمز عبور حساب کاربری =====
+const accountPasswordForm =
+    document.getElementById("accountPasswordForm");
 
-const openPasswordForm = document.getElementById("openPasswordForm");
-const accountPasswordForm = document.getElementById("accountPasswordForm");
-const accountPasswordCancel = document.getElementById("accountPasswordCancel");
+const accountPasswordCancel =
+    document.getElementById("accountPasswordCancel");
 
-const accountCurrentPassword = document.getElementById("accountCurrentPassword");
-const accountNewPassword = document.getElementById("accountNewPassword");
-const accountConfirmPassword = document.getElementById("accountConfirmPassword");
-const accountPasswordMessage = document.getElementById("accountPasswordMessage");
+const accountCurrentPassword =
+    document.getElementById("accountCurrentPassword");
 
-openPasswordForm.addEventListener("click", () => {
-    accountPasswordForm.classList.remove("is-hidden");
-    openPasswordForm.style.display = "none";
-    accountPasswordMessage.textContent = "";
-});
+const accountNewPassword =
+    document.getElementById("accountNewPassword");
 
-accountPasswordCancel.addEventListener("click", () => {
-    accountPasswordForm.reset();
-    accountPasswordForm.classList.add("is-hidden");
-    openPasswordForm.style.display = "flex";
-    accountPasswordMessage.textContent = "";
-});
+const accountConfirmPassword =
+    document.getElementById("accountConfirmPassword");
 
-accountPasswordForm.addEventListener("submit", function(event) {
-    event.preventDefault();
+const accountPasswordMessage =
+    document.getElementById("accountPasswordMessage");
 
-    const currentUser = getCurrentUser();
+if (openPasswordForm && accountPasswordForm) {
 
-    if (!currentUser) {
-        accountPasswordMessage.textContent = "حساب کاربری پیدا نشد.";
-        return;
-    }
+    openPasswordForm.addEventListener("click", () => {
 
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
+        accountPasswordForm.classList.remove("is-hidden");
 
-    const userIndex = users.findIndex(user =>
-        String(user.id) === String(currentUser.id) &&
-        user.role === "admin"
-    );
+        openPasswordForm.style.display = "none";
 
-    if (userIndex === -1) {
-        accountPasswordMessage.textContent = "اطلاعات حساب پیدا نشد.";
-        return;
-    }
+        accountPasswordMessage.textContent = "";
 
-    const user = users[userIndex];
+    });
 
-    // بررسی رمز فعلی
-    if (user.password !== accountCurrentPassword.value) {
-        accountPasswordMessage.textContent = "رمز عبور فعلی اشتباه است.";
-        return;
-    }
+}
+if (accountPasswordCancel && accountPasswordForm) {
 
-    // بررسی طول رمز جدید
-    if (accountNewPassword.value.length < 6) {
-        accountPasswordMessage.textContent = "رمز جدید باید حداقل ۶ کاراکتر باشد.";
-        return;
-    }
+    accountPasswordCancel.addEventListener("click", () => {
 
-    // بررسی یکسان بودن رمز جدید و تکرار آن
-    if (accountNewPassword.value !== accountConfirmPassword.value) {
-        accountPasswordMessage.textContent = "رمز جدید و تکرار آن یکسان نیستند.";
-        return;
-    }
+        accountPasswordForm.reset();
 
-    // جلوگیری از انتخاب رمز قبلی
-    if (accountNewPassword.value === user.password) {
-        accountPasswordMessage.textContent = "رمز جدید باید با رمز فعلی متفاوت باشد.";
-        return;
-    }
+        accountPasswordForm.classList.add("is-hidden");
 
-    // ذخیره رمز جدید
-    users[userIndex].password = accountNewPassword.value;
+        openPasswordForm.style.display = "flex";
 
-    localStorage.setItem("users", JSON.stringify(users));
+        accountPasswordMessage.textContent = "";
 
-    accountPasswordMessage.style.color = "#4ade80";
-    accountPasswordMessage.textContent = "رمز عبور با موفقیت تغییر کرد.";
+    });
 
-    accountPasswordForm.reset();
-});
+}
+if (accountPasswordForm) {
 
-// ===== ویرایش نام کاربری =====
+    accountPasswordForm.addEventListener("submit", function(event) {
 
-const openUsernameForm = document.getElementById("openUsernameForm");
-const accountUsernameForm = document.getElementById("accountUsernameForm");
-const accountUsernameCancel = document.getElementById("accountUsernameCancel");
+        event.preventDefault();
 
-const accountNewUsername = document.getElementById("accountNewUsername");
-const accountUsernameMessage = document.getElementById("accountUsernameMessage");
+        const currentUser = getCurrentUser();
 
-openUsernameForm.addEventListener("click", () => {
+        if (!currentUser) {
 
-    const currentUser = getCurrentUser();
+            accountPasswordMessage.textContent =
+                "حساب کاربری پیدا نشد.";
 
-    accountNewUsername.value = currentUser?.username || "";
+            return;
+        }
 
-    accountUsernameForm.classList.remove("is-hidden");
-    openUsernameForm.style.display = "none";
+        const users =
+            JSON.parse(localStorage.getItem("users") || "[]");
 
-    accountUsernameMessage.textContent = "";
-    accountUsernameMessage.style.color = "#f87171";
+        const userIndex = users.findIndex(user =>
+            String(user.id) === String(currentUser.id) &&
+            user.role === "admin"
+        );
 
-});
+        if (userIndex === -1) {
 
-accountUsernameCancel.addEventListener("click", () => {
+            accountPasswordMessage.textContent =
+                "اطلاعات حساب پیدا نشد.";
 
-    accountUsernameForm.reset();
-    accountUsernameForm.classList.add("is-hidden");
+            return;
+        }
 
-    openUsernameForm.style.display = "flex";
+        const user = users[userIndex];
 
-    accountUsernameMessage.textContent = "";
+        // بررسی رمز فعلی
+        if (user.password !== accountCurrentPassword.value) {
 
-});
+            accountPasswordMessage.textContent =
+                "رمز عبور فعلی اشتباه است.";
 
-accountUsernameForm.addEventListener("submit", function(event) {
+            return;
+        }
 
-    event.preventDefault();
+        // بررسی طول رمز جدید
+        if (accountNewPassword.value.length < 6) {
 
-    const currentUser = getCurrentUser();
+            accountPasswordMessage.textContent =
+                "رمز جدید باید حداقل ۶ کاراکتر باشد.";
 
-    if (!currentUser) {
-        accountUsernameMessage.textContent = "حساب کاربری پیدا نشد.";
-        return;
-    }
+            return;
+        }
 
-    const newUsername = accountNewUsername.value.trim();
+        // بررسی یکسان بودن رمز جدید و تکرار آن
+        if (accountNewPassword.value !== accountConfirmPassword.value) {
 
-    if (newUsername.length < 3) {
+            accountPasswordMessage.textContent =
+                "رمز جدید و تکرار آن یکسان نیستند.";
+
+            return;
+        }
+
+        // جلوگیری از انتخاب رمز قبلی
+        if (accountNewPassword.value === user.password) {
+
+            accountPasswordMessage.textContent =
+                "رمز جدید باید با رمز فعلی متفاوت باشد.";
+
+            return;
+        }
+
+        // ذخیره رمز جدید
+        users[userIndex].password = accountNewPassword.value;
+
+        localStorage.setItem(
+            "users",
+            JSON.stringify(users)
+        );
+
+        accountPasswordMessage.style.color = "#4ade80";
+
+        accountPasswordMessage.textContent =
+            "رمز عبور با موفقیت تغییر کرد.";
+
+        accountPasswordForm.reset();
+
+    });
+
+}
+
+/* =====================================================
+   بخش ۸ ـ ویرایش نام کاربری حساب
+===================================================== */
+const openUsernameForm =
+    document.getElementById("openUsernameForm");
+
+const accountUsernameForm =
+    document.getElementById("accountUsernameForm");
+
+const accountUsernameCancel =
+    document.getElementById("accountUsernameCancel");
+
+const accountNewUsername =
+    document.getElementById("accountNewUsername");
+
+const accountUsernameMessage =
+    document.getElementById("accountUsernameMessage");
+
+if (openUsernameForm && accountUsernameForm) {
+
+    openUsernameForm.addEventListener("click", () => {
+
+        const currentUser = getCurrentUser();
+
+        accountNewUsername.value =
+            currentUser?.username || "";
+
+        accountUsernameForm.classList.remove("is-hidden");
+
+        openUsernameForm.style.display = "none";
+
+        accountUsernameMessage.textContent = "";
+
+        accountUsernameMessage.style.color = "#f87171";
+
+    });
+
+}
+if (accountUsernameCancel && accountUsernameForm) {
+
+    accountUsernameCancel.addEventListener("click", () => {
+
+        accountUsernameForm.reset();
+
+        accountUsernameForm.classList.add("is-hidden");
+
+        openUsernameForm.style.display = "flex";
+
+        accountUsernameMessage.textContent = "";
+
+    });
+
+}
+if (accountUsernameForm) {
+
+    accountUsernameForm.addEventListener("submit", function(event) {
+
+        event.preventDefault();
+
+        const currentUser = getCurrentUser();
+
+        if (!currentUser) {
+
+            accountUsernameMessage.textContent =
+                "حساب کاربری پیدا نشد.";
+
+            return;
+        }
+
+        const newUsername = accountNewUsername.value.trim();
+
+        if (newUsername.length < 3) {
+
+            accountUsernameMessage.textContent =
+                "نام کاربری باید حداقل ۳ کاراکتر باشد.";
+
+            return;
+        }
+
+        const users =
+            JSON.parse(localStorage.getItem("users") || "[]");
+
+        const userIndex = users.findIndex(user =>
+            String(user.id) === String(currentUser.id) &&
+            user.role === "admin"
+        );
+
+        if (userIndex === -1) {
+
+            accountUsernameMessage.textContent =
+                "اطلاعات حساب پیدا نشد.";
+
+            return;
+        }
+
+        // بررسی تکراری نبودن نام کاربری
+        const usernameExists = users.some((user, index) =>
+            index !== userIndex &&
+            user.username.toLowerCase() === newUsername.toLowerCase()
+        );
+
+        if (usernameExists) {
+
+            accountUsernameMessage.textContent =
+                "این نام کاربری قبلاً استفاده شده است.";
+
+            return;
+        }
+
+        // ذخیره نام کاربری جدید
+        users[userIndex].username = newUsername;
+
+        localStorage.setItem(
+            "users",
+            JSON.stringify(users)
+        );
+
+        // به‌روزرسانی نشست فعلی
+        currentUser.username = newUsername;
+
+        localStorage.setItem(
+            "currentUser",
+            JSON.stringify(currentUser)
+        );
+
+        // به‌روزرسانی نام نمایشی پنل حساب
+        document.getElementById("accountUsername").textContent =
+            newUsername;
+
+        accountUsernameMessage.style.color = "#4ade80";
+
         accountUsernameMessage.textContent =
-            "نام کاربری باید حداقل ۳ کاراکتر باشد.";
-        return;
-    }
+            "نام کاربری با موفقیت تغییر کرد.";
 
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
+        accountUsernameForm.reset();
 
-    const userIndex = users.findIndex(user =>
-        String(user.id) === String(currentUser.id) &&
-        user.role === "admin"
-    );
+    });
 
-    if (userIndex === -1) {
-        accountUsernameMessage.textContent =
-            "اطلاعات حساب پیدا نشد.";
-        return;
-    }
+}
 
-    // بررسی تکراری نبودن نام کاربری
-    const usernameExists = users.some((user, index) =>
-        index !== userIndex &&
-        user.username.toLowerCase() === newUsername.toLowerCase()
-    );
-
-    if (usernameExists) {
-        accountUsernameMessage.textContent =
-            "این نام کاربری قبلاً استفاده شده است.";
-        return;
-    }
-
-    // ذخیره نام کاربری جدید
-    users[userIndex].username = newUsername;
-
-    localStorage.setItem("users", JSON.stringify(users));
-
-    // به‌روزرسانی حساب کاربری فعلی
-    currentUser.username = newUsername;
-
-    localStorage.setItem(
-        "currentUser",
-        JSON.stringify(currentUser)
-    );
-
-    // به‌روزرسانی نام نمایشی در پنل
-    document.getElementById("accountUsername").textContent = newUsername;
-
-    accountUsernameMessage.style.color = "#4ade80";
-    accountUsernameMessage.textContent =
-        "نام کاربری با موفقیت تغییر کرد.";
-
-    accountUsernameForm.reset();
-
-});
-
+/* =====================================================
+   بخش ۹ ـ فیلدهای عددی فرم ثبت ملک
+===================================================== */
 const numericFields = [
-    'area',
-    'year',
-    'rooms',
-    'totalFloors',
-    'totalUnits',
-    'floor',
-    'unitNumber',
-    'sellPrice',
-    'pricePerMeter',
-    'depositPrice',
-    'rentDeposit',
-    'rentPrice'
+    "area",
+    "year",
+    "rooms",
+    "totalFloors",
+    "totalUnits",
+    "floor",
+    "unitNumber",
+    "sellPrice",
+    "pricePerMeter",
+    "depositPrice",
+    "rentDeposit",
+    "rentPrice"
 ];
-
+// فیلدهایی که باید جداکننده هزارگان داشته باشند
 const priceFields = [
-    'sellPrice',
-    'pricePerMeter',
-    'depositPrice',
-    'rentDeposit',
-    'rentPrice'
+    "sellPrice",
+    "pricePerMeter",
+    "depositPrice",
+    "rentDeposit",
+    "rentPrice"
 ];
-
 numericFields.forEach(id => {
+
     const input = document.getElementById(id);
 
     if (!input) return;
 
-    input.addEventListener('input', function () {
+    input.addEventListener("input", function() {
 
-        const cursor = this.selectionStart;
         const oldValue = this.value;
 
-        const cleanValue = toEnglishDigits(oldValue)
-            .replace(/[^\d]/g, '');
+        const cursor = this.selectionStart ?? oldValue.length;
 
+        // تبدیل اعداد فارسی به انگلیسی و حذف کاراکترهای غیرعددی
+        const cleanValue = toEnglishDigits(oldValue)
+            .replace(/[^\d]/g, "");
+
+        // تعداد ارقام قبل از مکان‌نما
         const digitsBeforeCursor = toEnglishDigits(
             oldValue.slice(0, cursor)
-        ).replace(/[^\d]/g, '').length;
+        ).replace(/[^\d]/g, "").length;
 
+        // تبدیل عدد به فارسی
         let formattedValue = toPersianDigits(cleanValue);
 
+        // قالب‌بندی قیمت با جداکننده هزارگان
         if (priceFields.includes(id) && cleanValue) {
-            formattedValue = Number(cleanValue).toLocaleString('fa-IR');
+
+            formattedValue =
+                Number(cleanValue).toLocaleString("fa-IR");
+
         }
 
         this.value = formattedValue;
 
+        // بازگرداندن مکان‌نما به موقعیت مناسب
         let newCursor = 0;
         let digitCount = 0;
 
-        while (newCursor < formattedValue.length && digitCount < digitsBeforeCursor) {
+        while (
+            newCursor < formattedValue.length &&
+            digitCount < digitsBeforeCursor
+        ) {
+
             if (/[۰-۹]/.test(formattedValue[newCursor])) {
                 digitCount++;
             }
+
             newCursor++;
+
         }
 
-        this.setSelectionRange(newCursor, newCursor);
+        // فقط برای فیلدهایی که مکان‌نما دارند
+        if (typeof this.setSelectionRange === "function") {
+
+            this.setSelectionRange(newCursor, newCursor);
+
+        }
+
     });
+
 });
